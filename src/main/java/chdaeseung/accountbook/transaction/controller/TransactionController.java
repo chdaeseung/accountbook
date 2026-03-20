@@ -111,4 +111,17 @@ public class TransactionController {
 
         return "redirect:/transactions/" + id;
     }
+
+    @PostMapping("/{id}/delete")
+    public String deleteTransaction(@PathVariable Long id, HttpSession session) {
+        LoginUserDto loginuser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(loginuser == null) {
+            return "redirect:/users/login";
+        }
+
+        transactionService.deleteTransaction(id, loginuser.getId());
+
+        return "redirect:/transactions";
+    }
 }

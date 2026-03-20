@@ -5,6 +5,12 @@
 <p>타입: <span th:text="${transaction.type.getDescription()}"></span></p>
 <p>카테고리: <span th:text="${transaction.getCategory()}"></span></p>
 <p>날짜: <span th:text="${transaction.date}"></span></p>
-<a th:href="@{/transactions/{id}/edit(id=${transaction.id})}">수정</a>
 
 <a th:href="@{/transactions}">목록으로</a>
+<a th:href="@{/transactions/{id}/edit(id=${transaction.id})}">수정</a>
+
+<form th:action="@{/transactions/{id}/delete(id=${transaction.id})}"
+      method="post"
+      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+    <button type="submit">삭제</button>
+</form>

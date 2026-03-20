@@ -91,4 +91,16 @@ public class TransactionService {
         );
     }
 
+    @Transactional
+    public void deleteTransaction(Long transactionId, Long userId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("거래내역이 없습니다."));
+
+        if(!transaction.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
+        transactionRepository.delete(transaction);
+    }
+
 }
