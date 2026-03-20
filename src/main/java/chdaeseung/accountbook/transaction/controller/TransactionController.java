@@ -1,6 +1,8 @@
 package chdaeseung.accountbook.transaction.controller;
 
 import chdaeseung.accountbook.transaction.dto.CreateDto;
+import chdaeseung.accountbook.transaction.dto.ResponseDto;
+import chdaeseung.accountbook.transaction.dto.UpdateDto;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import chdaeseung.accountbook.transaction.service.TransactionService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
@@ -10,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -62,5 +61,54 @@ public class TransactionController {
 
         transactionService.createTransaction(createDto, loginUser.getId());
         return "redirect:/transactions";
+    }
+
+    @GetMapping("/{id}")
+    public String getTransactionDetail(@PathVariable("id") Long id, HttpSession session, Model model) {
+        System.out.println("세부 요청 들어옴");
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(loginUser == null) {
+            return "redirect:/users/login";
+        }
+
+        ResponseDto transaction = transactionService.getTransactionDetail(id, loginUser.getId());
+
+        model.addAttribute("transaction", transaction);
+
+        return "/transactions/detail";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editTransaction(@PathVariable Long id, HttpSession session, Model model) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(loginUser == null) {
+            return "redirect:/users/login";
+        }
+
+        UpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
+        model.addAttribute("transaction", transaction);
+        model.addAttribute("transactionId", id);
+
+        return "/transactions/edit";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String editTransaction(@PathVariable Long id, @Valid @ModelAttribute("transaction") UpdateDto updateDto, BindingResult bindingResult, HttpSession session, Model model) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(loginUser == null) {
+            return "redirect:/users/login";
+        }
+
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("transactionId", id);
+            return "/transactions/edit";
+        }
+
+        transactionService.updateTransaction(id, loginUser.getId(), updateDto);
+
+        return "redirect:/transactions/" + id;
     }
 }

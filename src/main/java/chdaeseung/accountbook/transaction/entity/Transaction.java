@@ -43,4 +43,12 @@ public class Transaction {
         this.date = date;
         this.user = user;
     }
+
+    public void update(TransactionType type, Long amount, String category, String memo, LocalDate date) {
+        this.type = type;
+        this.amount = amount;
+        this.category = category;
+        this.memo = memo;
+        this.date = date;
+    }
 }

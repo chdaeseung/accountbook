@@ -1,0 +1,10 @@
+<h1>거래 상세</h1>
+
+<p>내용: <span th:text="${transaction.memo}"></span></p>
+<p>금액: <span th:text="${transaction.amount}"></span></p>
+<p>타입: <span th:text="${transaction.type.getDescription()}"></span></p>
+<p>카테고리: <span th:text="${transaction.getCategory()}"></span></p>
+<p>날짜: <span th:text="${transaction.date}"></span></p>
+<a th:href="@{/transactions/{id}/edit(id=${transaction.id})}">수정</a>
+
+<a th:href="@{/transactions}">목록으로</a>
