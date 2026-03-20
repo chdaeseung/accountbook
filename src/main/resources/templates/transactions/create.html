@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>거래내역 등록</title>
+</head>
+<body>
+<h1>거래내역 등록</h1>
+
+<form th:action="@{/transactions/create}" th:object="${createDto}" method="post">
+    <div>
+        <label>거래 유형</label>
+        <select th:field="*{type}">
+            <option value="">선택하세요</option>
+            <option th:each="type : ${transactionTypes}"
+                    th:value="${type}"
+                    th:text="${type}">
+            </option>
+        </select>
+        <div th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+    </div>
+
+    <div>
+        <label>금액</label>
+        <input type="number" th:field="*{amount}">
+        <div th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
+    </div>
+
+    <div>
+        <label>카테고리</label>
+        <input type="text" th:field="*{category}">
+        <div th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+    </div>
+
+    <div>
+        <label>메모</label>
+        <input type="text" th:field="*{memo}">
+    </div>
+
+    <div>
+        <label>날짜</label>
+        <input type="date" th:field="*{date}">
+        <div th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></div>
+    </div>
+
+    <button type="submit">등록</button>
+</form>
+
+<a th:href="@{/}">홈으로</a>
+</body>
+</html>
