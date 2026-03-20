@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.transaction.service;
 
+import chdaeseung.accountbook.global.exception.CustomException;
+import chdaeseung.accountbook.global.exception.ErrorCode;
 import chdaeseung.accountbook.transaction.dto.CreateDto;
 import chdaeseung.accountbook.transaction.dto.ResponseDto;
 import chdaeseung.accountbook.transaction.dto.UpdateDto;
@@ -21,7 +23,8 @@ public class TransactionService {
     private final UserRepository userRepository;
 
     public void createTransaction(CreateDto createDto, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Transaction transaction = new Transaction(
                 createDto.getType(),
@@ -36,7 +39,8 @@ public class TransactionService {
     }
 
     public List<ResponseDto> getTransactions(Long loginUserId) {
-        User user = userRepository.findById(loginUserId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(loginUserId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return transactionRepository.findAllByUserOrderByDateDescIdDesc(user)
                 .stream()
@@ -46,10 +50,10 @@ public class TransactionService {
 
     public ResponseDto getTransactionDetail(Long transactionId, Long userId) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("거래내역이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
         if(!transaction.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("접근 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         return new ResponseDto(transaction);
@@ -57,10 +61,10 @@ public class TransactionService {
 
     public UpdateDto transactionUpdate(Long transactionId, Long userId) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("거래내역이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
         if(!transaction.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("수정 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         UpdateDto dto = new UpdateDto();
@@ -76,10 +80,10 @@ public class TransactionService {
     @Transactional
     public void updateTransaction(Long transactionId, Long userId, UpdateDto updateDto) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("거래내역이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
         if(!transaction.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("수정 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         transaction.update(
@@ -94,10 +98,10 @@ public class TransactionService {
     @Transactional
     public void deleteTransaction(Long transactionId, Long userId) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("거래내역이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
         if(!transaction.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         transactionRepository.delete(transaction);

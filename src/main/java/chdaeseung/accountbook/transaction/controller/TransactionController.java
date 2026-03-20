@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.transaction.controller;
 
+import chdaeseung.accountbook.global.exception.CustomException;
+import chdaeseung.accountbook.global.exception.ErrorCode;
 import chdaeseung.accountbook.transaction.dto.CreateDto;
 import chdaeseung.accountbook.transaction.dto.ResponseDto;
 import chdaeseung.accountbook.transaction.dto.UpdateDto;
@@ -25,10 +27,6 @@ public class TransactionController {
     public String getTransactions(HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        if(loginUser == null) {
-            return "redirect:/users/login";
-        }
-
         model.addAttribute("transactions", transactionService.getTransactions(loginUser.getId()));
         return "/transactions/list";
     }
@@ -50,10 +48,6 @@ public class TransactionController {
     public String create(@Valid @ModelAttribute("createDto") CreateDto createDto, BindingResult bindingResult, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        if(loginUser == null) {
-            return "redirect:/users/login";
-        }
-
         if(bindingResult.hasErrors()) {
             model.addAttribute("transactionTypes", TransactionType.values());
             return "/transactions/create";
@@ -65,12 +59,7 @@ public class TransactionController {
 
     @GetMapping("/{id}")
     public String getTransactionDetail(@PathVariable("id") Long id, HttpSession session, Model model) {
-        System.out.println("세부 요청 들어옴");
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(loginUser == null) {
-            return "redirect:/users/login";
-        }
 
         ResponseDto transaction = transactionService.getTransactionDetail(id, loginUser.getId());
 
@@ -83,10 +72,6 @@ public class TransactionController {
     public String editTransaction(@PathVariable Long id, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        if(loginUser == null) {
-            return "redirect:/users/login";
-        }
-
         UpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
         model.addAttribute("transaction", transaction);
         model.addAttribute("transactionId", id);
@@ -97,10 +82,6 @@ public class TransactionController {
     @PostMapping("/{id}/edit")
     public String editTransaction(@PathVariable Long id, @Valid @ModelAttribute("transaction") UpdateDto updateDto, BindingResult bindingResult, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(loginUser == null) {
-            return "redirect:/users/login";
-        }
 
         if(bindingResult.hasErrors()) {
             model.addAttribute("transactionId", id);
@@ -115,10 +96,6 @@ public class TransactionController {
     @PostMapping("/{id}/delete")
     public String deleteTransaction(@PathVariable Long id, HttpSession session) {
         LoginUserDto loginuser = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(loginuser == null) {
-            return "redirect:/users/login";
-        }
 
         transactionService.deleteTransaction(id, loginuser.getId());
 
