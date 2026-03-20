@@ -22,6 +22,18 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    @GetMapping
+    public String getTransactions(HttpSession session, Model model) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(loginUser == null) {
+            return "redirect:/users/login";
+        }
+
+        model.addAttribute("transactions", transactionService.getTransactions(loginUser.getId()));
+        return "/transactions/list";
+    }
+
     @GetMapping("/create")
     public String create(Model model, HttpSession session) {
         LoginUserDto loginUserDto = (LoginUserDto) session.getAttribute("loginUser");
@@ -49,6 +61,6 @@ public class TransactionController {
         }
 
         transactionService.createTransaction(createDto, loginUser.getId());
-        return "redirect:/";
+        return "redirect:/transactions";
     }
 }
