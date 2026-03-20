@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.user.service;
 
+import chdaeseung.accountbook.user.dto.LoginRequestDto;
+import chdaeseung.accountbook.user.dto.LoginUserDto;
 import chdaeseung.accountbook.user.dto.SignupRequestDto;
 import chdaeseung.accountbook.user.entity.User;
 import chdaeseung.accountbook.user.repository.UserRepository;
@@ -32,5 +34,16 @@ public class UserService {
         if(userRepository.existsByEmail(requestDto.getEmail())) {
             throw new IllegalArgumentException("사용중인 이메일입니다.");
         }
+    }
+
+    public User login(LoginRequestDto requestDto) {
+        User user = userRepository.findByUsername(requestDto.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
+
+        return user;
     }
 }
