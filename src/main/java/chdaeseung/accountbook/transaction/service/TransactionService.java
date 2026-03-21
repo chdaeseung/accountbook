@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.transaction.service;
 
+import chdaeseung.accountbook.category.entity.Category;
+import chdaeseung.accountbook.category.repository.CategoryRepository;
 import chdaeseung.accountbook.global.exception.CustomException;
 import chdaeseung.accountbook.global.exception.ErrorCode;
 import chdaeseung.accountbook.transaction.dto.CreateDto;
@@ -21,15 +23,19 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     public void createTransaction(CreateDto createDto, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        Category category = categoryRepository.findByIdAndUserId(createDto.getCategoryId(), userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
         Transaction transaction = new Transaction(
                 createDto.getType(),
                 createDto.getAmount(),
-                createDto.getCategory(),
+                category,
                 createDto.getMemo(),
                 createDto.getDate(),
                 user
@@ -38,8 +44,8 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
-    public List<ResponseDto> getTransactions(Long loginUserId) {
-        User user = userRepository.findById(loginUserId)
+    public List<ResponseDto> getTransactions(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return transactionRepository.findAllByUserOrderByDateDescIdDesc(user)
@@ -70,7 +76,7 @@ public class TransactionService {
         UpdateDto dto = new UpdateDto();
         dto.setType(transaction.getType());
         dto.setAmount(transaction.getAmount());
-        dto.setCategory(transaction.getCategory());
+        dto.setCategoryId(transaction.getCategory().getId());
         dto.setMemo(transaction.getMemo());
         dto.setDate(transaction.getDate());
 
@@ -86,10 +92,13 @@ public class TransactionService {
             throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
+        Category category = categoryRepository.findByIdAndUserId(updateDto.getCategoryId(), userId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
         transaction.update(
                 updateDto.getType(),
                 updateDto.getAmount(),
-                updateDto.getCategory(),
+                category,
                 updateDto.getMemo(),
                 updateDto.getDate()
         );

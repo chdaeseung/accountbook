@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>가계부 대시보드</title>
+</head>
+<body>
+<h1>가계부 대시보드</h1>
+
+<hr>
+
+<h2>요약 정보</h2>
+<p>총 수입: <span th:text="${dashboard.totalIncome}"></span>원</p>
+<p>총 지출: <span th:text="${dashboard.totalExpense}"></span>원</p>
+<p>현재 잔액: <span th:text="${dashboard.balance}"></span>원</p>
+
+<hr>
+
+<h2>최근 거래 5건</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>날짜</th>
+        <th>유형</th>
+        <th>카테고리</th>
+        <th>금액</th>
+        <th>메모</th>
+        <th>상세</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(dashboard.recentTransactions)}">
+        <td colspan="6">거래내역이 없습니다.</td>
+    </tr>
+    <tr th:each="transaction : ${dashboard.recentTransactions}">
+        <td th:text="${transaction.date}"></td>
+        <td th:text="${transaction.type}"></td>
+        <td th:text="${transaction.category}"></td>
+        <td th:text="${transaction.amount}"></td>
+        <td th:text="${transaction.memo}"></td>
+        <td>
+            <a th:href="@{/transactions/{id}(id=${transaction.id})}">상세보기</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<a th:href="@{/transactions}">거래내역 보기</a>
+<a th:href="@{/transactions/new}">거래내역 등록</a>
+<a th:href="@{/categories}">카테고리 관리</a>
+
+</body>
+</html>

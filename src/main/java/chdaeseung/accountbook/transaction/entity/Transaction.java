@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.entity;
 
+import chdaeseung.accountbook.category.entity.Category;
 import chdaeseung.accountbook.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,8 +24,6 @@ public class Transaction {
     @Column(nullable = false)
     private Long amount;
 
-    @Column(nullable = false)
-    private String category;
 
     private String memo;
 
@@ -32,10 +31,14 @@ public class Transaction {
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Transaction(TransactionType type, Long amount, String category, String memo, LocalDate date, User user) {
+    public Transaction(TransactionType type, Long amount, Category category, String memo, LocalDate date, User user) {
         this.type = type;
         this.amount = amount;
         this.category = category;
@@ -44,7 +47,7 @@ public class Transaction {
         this.user = user;
     }
 
-    public void update(TransactionType type, Long amount, String category, String memo, LocalDate date) {
+    public void update(TransactionType type, Long amount, Category category, String memo, LocalDate date) {
         this.type = type;
         this.amount = amount;
         this.category = category;

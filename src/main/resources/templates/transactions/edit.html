@@ -29,8 +29,14 @@
 
     <div>
         <label>카테고리</label>
-        <input type="text" th:field="*{category}">
-        <div th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+        <select th:field="*{categoryId}">
+            <option value="">카테고리 선택</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+            </option>
+        </select>
+        <div th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
     </div>
 
     <div>

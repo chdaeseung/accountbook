@@ -10,7 +10,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/transactions/**")
+                .addPathPatterns(
+                        "/transactions/**",
+                        "/categories/**",
+                        "/dashboard"
+                )
                 .excludePathPatterns(
                         "/users/login",
                         "/users/signup",

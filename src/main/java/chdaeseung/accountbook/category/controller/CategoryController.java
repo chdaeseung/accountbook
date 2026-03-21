@@ -1,0 +1,52 @@
+package chdaeseung.accountbook.category.controller;
+
+import chdaeseung.accountbook.category.dto.CategoryCreateDto;
+import chdaeseung.accountbook.category.service.CategoryService;
+import chdaeseung.accountbook.user.dto.LoginUserDto;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/categories")
+public class CategoryController {
+    private final CategoryService categoryService;
+
+    @GetMapping
+    public String getCategories(HttpSession session, Model model) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+        model.addAttribute("categoryForm", new CategoryCreateDto());
+
+        return "/categories/list";
+    }
+
+    @PostMapping
+    public String createCategory(@Valid @ModelAttribute("categoryForm") CategoryCreateDto createDto,
+                                 BindingResult bindingResult,
+                                 HttpSession session, Model model) {
+        LoginUserDto loginuser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.getCategories(loginuser.getId()));
+            return "/categories/list";
+        }
+
+        categoryService.createCategory(createDto, loginuser.getId());
+        return "redirect:/categories";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteCategory(@PathVariable Long id, HttpSession session) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        categoryService.deleteCategory(id, loginUser.getId());
+        return "redirect:/categories";
+    }
+}

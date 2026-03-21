@@ -45,13 +45,13 @@ public class UserController {
     @GetMapping("/login")
     public String login(Model model) {
         model.addAttribute("loginRequestDto", new LoginRequestDto());
-        return "/users/login";
+        return "users/login";
     }
 
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute("loginRequestDto") LoginRequestDto requestDto, BindingResult bindingResult, HttpSession session) {
         if(bindingResult.hasErrors()) {
-            return "/users/login";
+            return "users/login";
         }
 
         try {
@@ -59,10 +59,10 @@ public class UserController {
             session.setAttribute("loginUser", new LoginUserDto(loginUser));
         } catch (IllegalArgumentException e) {
             bindingResult.reject("loginFail", e.getMessage());
-            return "/users/login";
+            return "users/login";
         }
 
-        return "redirect:/";
+        return "redirect:/dashboard";
     }
 
     @PostMapping("/logout")

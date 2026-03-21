@@ -12,10 +12,8 @@
         <label>거래 유형</label>
         <select th:field="*{type}">
             <option value="">선택하세요</option>
-            <option th:each="type : ${transactionTypes}"
-                    th:value="${type}"
-                    th:text="${type.getDescription()}">
-            </option>
+            <option th:value="INCOME">수입</option>
+            <option th:value="EXPENSE">지출</option>
         </select>
         <div th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
     </div>
@@ -28,8 +26,14 @@
 
     <div>
         <label>카테고리</label>
-        <input type="text" th:field="*{category}">
-        <div th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+        <select th:field="*{categoryId}">
+            <option value="">카테고리 선택</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+            </option>
+        </select>
+        <div th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
     </div>
 
     <div>

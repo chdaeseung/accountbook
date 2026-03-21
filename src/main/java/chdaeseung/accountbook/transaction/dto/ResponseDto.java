@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.dto;
 
+import chdaeseung.accountbook.category.entity.Category;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import lombok.Getter;
@@ -20,7 +21,7 @@ public class ResponseDto {
         this.id = transaction.getId();
         this.type = transaction.getType();
         this.amount = transaction.getAmount();
-        this.category = transaction.getCategory();
+        this.category = transaction.getCategory().getName();
         this.memo = transaction.getMemo();
         this.date = transaction.getDate();
     }

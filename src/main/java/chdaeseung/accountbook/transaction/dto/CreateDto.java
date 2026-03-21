@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.dto;
 
+import chdaeseung.accountbook.category.entity.Category;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -19,8 +20,8 @@ public class CreateDto {
     @NotNull(message = "금액을 입력해주새요.")
     private Long amount;
 
-    @NotNull(message = "카테고리를 입력해주세요.")
-    private String category;
+    @NotNull(message = "카테고리를 선택해주세요.")
+    private Long categoryId;
 
     private String memo;
 

@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.controller;
 
+import chdaeseung.accountbook.category.service.CategoryService;
 import chdaeseung.accountbook.global.exception.CustomException;
 import chdaeseung.accountbook.global.exception.ErrorCode;
 import chdaeseung.accountbook.transaction.dto.CreateDto;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public String getTransactions(HttpSession session, Model model) {
@@ -33,14 +35,11 @@ public class TransactionController {
 
     @GetMapping("/create")
     public String create(Model model, HttpSession session) {
-        LoginUserDto loginUserDto = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(loginUserDto == null) {
-            return "redirect:/users/login";
-        }
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
         model.addAttribute("createDto", new CreateDto());
-        model.addAttribute("transactionTypes", TransactionType.values());
+        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+
         return "/transactions/create";
     }
 
@@ -49,7 +48,7 @@ public class TransactionController {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
         if(bindingResult.hasErrors()) {
-            model.addAttribute("transactionTypes", TransactionType.values());
+            model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
             return "/transactions/create";
         }
 
@@ -75,6 +74,7 @@ public class TransactionController {
         UpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
         model.addAttribute("transaction", transaction);
         model.addAttribute("transactionId", id);
+        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
 
         return "/transactions/edit";
     }
@@ -85,6 +85,7 @@ public class TransactionController {
 
         if(bindingResult.hasErrors()) {
             model.addAttribute("transactionId", id);
+            model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
             return "/transactions/edit";
         }
 
