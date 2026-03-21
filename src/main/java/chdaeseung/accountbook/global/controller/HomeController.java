@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.global.controller;
 
+import chdaeseung.accountbook.user.dto.LoginUserDto;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -7,7 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     @GetMapping("/")
-    public String home() {
-        return "index";
+    public String home(HttpSession session) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        if(loginUser != null) {
+            return "redirect:/users/login";
+        }
+
+        return "redirect:/dashboard";
     }
 }

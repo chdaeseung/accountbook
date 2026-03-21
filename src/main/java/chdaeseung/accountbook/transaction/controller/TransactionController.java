@@ -53,7 +53,7 @@ public class TransactionController {
         }
 
         transactionService.createTransaction(createDto, loginUser.getId());
-        return "redirect:/transactions";
+        return "redirect:/dashboard";
     }
 
     @GetMapping("/{id}")

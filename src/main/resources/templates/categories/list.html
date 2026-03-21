@@ -20,14 +20,12 @@
 <table>
     <thead>
     <tr>
-        <th>ID</th>
         <th>이름</th>
         <th>삭제</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="category : ${categories}">
-        <td th:text="${category.id}"></td>
         <td th:text="${category.name}"></td>
         <td>
             <form th:action="@{/categories/{id}/delete(id=${category.id})}"
