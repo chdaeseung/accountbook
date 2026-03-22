@@ -1,6 +1,6 @@
 package chdaeseung.accountbook.dashboard.dto;
 
-import chdaeseung.accountbook.transaction.dto.ResponseDto;
+import chdaeseung.accountbook.transaction.dto.TransactionResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,5 +13,5 @@ public class DashboardResponseDto {
     private Long totalIncome;
     private Long totalExpense;
     private long balance;
-    private List<ResponseDto> recentTransactions;
+    private List<TransactionResponseDto> recentTransactions;
 }

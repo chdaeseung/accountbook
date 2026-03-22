@@ -24,7 +24,6 @@ public class Transaction {
     @Column(nullable = false)
     private Long amount;
 
-
     private String memo;
 
     @Column(nullable = false)

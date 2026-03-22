@@ -1,7 +1,7 @@
 package chdaeseung.accountbook.dashboard.service;
 
 import chdaeseung.accountbook.dashboard.dto.DashboardResponseDto;
-import chdaeseung.accountbook.transaction.dto.ResponseDto;
+import chdaeseung.accountbook.transaction.dto.TransactionResponseDto;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import chdaeseung.accountbook.transaction.repository.TransactionRepository;
@@ -34,10 +34,10 @@ public class DashboardService {
 
         long balance = totalIncome - totalExpense;
 
-        List<ResponseDto> recentTransactions = transactionRepository
+        List<TransactionResponseDto> recentTransactions = transactionRepository
                 .findTop5ByUserIdOrderByDateDescIdDesc(userId)
                 .stream()
-                .map(ResponseDto::new)
+                .map(TransactionResponseDto::new)
                 .toList();
 
         return new DashboardResponseDto(totalIncome, totalExpense, balance, recentTransactions);

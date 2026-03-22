@@ -33,7 +33,6 @@
         <th>카테고리</th>
         <th>금액</th>
         <th>메모</th>
-        <th>상세</th>
     </tr>
     </thead>
     <tbody>
@@ -42,12 +41,14 @@
     </tr>
     <tr th:each="transaction : ${dashboard.recentTransactions}">
         <td th:text="${transaction.date}"></td>
-        <td th:text="${transaction.type}"></td>
+        <td th:text="${transaction.type.getDescription()}"></td>
         <td th:text="${transaction.category}"></td>
         <td th:text="${transaction.amount}"></td>
-        <td th:text="${transaction.memo}"></td>
         <td>
-            <a th:href="@{/transactions/{id}(id=${transaction.id})}">상세보기</a>
+            <a th:href="@{/transactions/{id}(id=${transaction.id})}"
+               th:text="${transaction.memo != null and !#strings.isEmpty(transaction.memo) ? transaction.memo : '(내용 없음)'}">
+                메모
+            </a>
         </td>
     </tr>
     </tbody>

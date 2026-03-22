@@ -25,21 +25,30 @@ public class CategoryService {
     private final TransactionRepository transactionRepository;
 
     @Transactional
-    public void createCategory(CategoryCreateDto createDto, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public CategoryResponseDto createCategory(Long userId, CategoryCreateDto createDto) {
+        String categoryName = createDto.getName() == null ? "" : createDto.getName().trim();
 
-        if(categoryRepository.existsByNameAndUserId(createDto.getName(), userId)) {
+        if(categoryName.isEmpty()) {
+            throw new CustomException(ErrorCode.BLANK_CATEGORY_NAME);
+        }
+
+        if(categoryRepository.existsByUserIdAndName(userId, categoryName)) {
             throw new CustomException(ErrorCode.DUPLICATE_CATEGORY);
         }
 
-        Category category = new Category(createDto.getName(), user);
-        categoryRepository.save(category);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Category category = new Category(categoryName, user);
+
+        Category savedCategory = categoryRepository.save(category);
+
+        return CategoryResponseDto.from(savedCategory);
     }
 
     public List<CategoryResponseDto> getCategories(Long userId) {
         return categoryRepository.findAllByUserId(userId).stream()
-                .map(e -> new CategoryResponseDto(e.getId(), e.getName()))
+                .map(CategoryResponseDto::from)
                 .toList();
     }
 

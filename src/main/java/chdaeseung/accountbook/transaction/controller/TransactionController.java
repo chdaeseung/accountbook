@@ -1,17 +1,13 @@
 package chdaeseung.accountbook.transaction.controller;
 
 import chdaeseung.accountbook.category.service.CategoryService;
-import chdaeseung.accountbook.global.exception.CustomException;
-import chdaeseung.accountbook.global.exception.ErrorCode;
-import chdaeseung.accountbook.transaction.dto.CreateDto;
-import chdaeseung.accountbook.transaction.dto.ResponseDto;
-import chdaeseung.accountbook.transaction.dto.UpdateDto;
-import chdaeseung.accountbook.transaction.entity.TransactionType;
+import chdaeseung.accountbook.transaction.dto.*;
 import chdaeseung.accountbook.transaction.service.TransactionService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,10 +22,15 @@ public class TransactionController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public String getTransactions(HttpSession session, Model model) {
+    public String getTransactions(@ModelAttribute TransactionSearchDto searchDto, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        model.addAttribute("transactions", transactionService.getTransactions(loginUser.getId()));
+        Page<TransactionListResponseDto> transactionPage = transactionService.getTransactions(loginUser.getId(), searchDto);
+
+        model.addAttribute("transactionPage", transactionPage);
+        model.addAttribute("searchDto", searchDto);
+        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+
         return "/transactions/list";
     }
 
@@ -37,14 +38,16 @@ public class TransactionController {
     public String create(Model model, HttpSession session) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        model.addAttribute("createDto", new CreateDto());
+        model.addAttribute("transactionCreateDto", new TransactionCreateDto());
+        model.addAttribute("createDto", new TransactionCreateDto());
         model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
 
         return "/transactions/create";
     }
 
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("createDto") CreateDto createDto, BindingResult bindingResult, HttpSession session, Model model) {
+    public String create(@Valid @ModelAttribute("createDto") TransactionCreateDto transactionCreateDto, BindingResult bindingResult, HttpSession session, Model model) {
+        System.out.println("create - controller");
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
         if(bindingResult.hasErrors()) {
@@ -52,15 +55,15 @@ public class TransactionController {
             return "/transactions/create";
         }
 
-        transactionService.createTransaction(createDto, loginUser.getId());
+        transactionService.createTransaction(transactionCreateDto, loginUser.getId());
         return "redirect:/dashboard";
     }
 
-    @GetMapping("/{id}")
-    public String getTransactionDetail(@PathVariable("id") Long id, HttpSession session, Model model) {
+    @GetMapping("/{transactionId}")
+    public String getTransactionDetail(@PathVariable Long transactionId, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        ResponseDto transaction = transactionService.getTransactionDetail(id, loginUser.getId());
+        TransactionDetailDto transaction = transactionService.getTransactionDetail(loginUser.getId(), transactionId);
 
         model.addAttribute("transaction", transaction);
 
@@ -71,7 +74,7 @@ public class TransactionController {
     public String editTransaction(@PathVariable Long id, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        UpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
+        TransactionUpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
         model.addAttribute("transaction", transaction);
         model.addAttribute("transactionId", id);
         model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
@@ -80,7 +83,7 @@ public class TransactionController {
     }
 
     @PostMapping("/{id}/edit")
-    public String editTransaction(@PathVariable Long id, @Valid @ModelAttribute("transaction") UpdateDto updateDto, BindingResult bindingResult, HttpSession session, Model model) {
+    public String editTransaction(@PathVariable Long id, @Valid @ModelAttribute("transaction") TransactionUpdateDto transactionUpdateDto, BindingResult bindingResult, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
         if(bindingResult.hasErrors()) {
@@ -89,7 +92,7 @@ public class TransactionController {
             return "/transactions/edit";
         }
 
-        transactionService.updateTransaction(id, loginUser.getId(), updateDto);
+        transactionService.updateTransaction(id, loginUser.getId(), transactionUpdateDto);
 
         return "redirect:/transactions/" + id;
     }

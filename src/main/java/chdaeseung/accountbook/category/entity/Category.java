@@ -3,6 +3,8 @@ package chdaeseung.accountbook.category.entity;
 import chdaeseung.accountbook.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

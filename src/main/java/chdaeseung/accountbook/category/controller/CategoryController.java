@@ -1,6 +1,7 @@
 package chdaeseung.accountbook.category.controller;
 
 import chdaeseung.accountbook.category.dto.CategoryCreateDto;
+import chdaeseung.accountbook.category.dto.CategoryResponseDto;
 import chdaeseung.accountbook.category.service.CategoryService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
 import jakarta.servlet.http.HttpSession;
@@ -28,18 +29,11 @@ public class CategoryController {
     }
 
     @PostMapping
-    public String createCategory(@Valid @ModelAttribute("categoryForm") CategoryCreateDto createDto,
-                                 BindingResult bindingResult,
-                                 HttpSession session, Model model) {
+    public CategoryResponseDto createCategory(@RequestBody CategoryCreateDto createDto,
+                                              HttpSession session) {
         LoginUserDto loginuser = (LoginUserDto) session.getAttribute("loginUser");
 
-        if(bindingResult.hasErrors()) {
-            model.addAttribute("categories", categoryService.getCategories(loginuser.getId()));
-            return "/categories/list";
-        }
-
-        categoryService.createCategory(createDto, loginuser.getId());
-        return "redirect:/categories";
+        return categoryService.createCategory(loginuser.getId(), createDto);
     }
 
     @PostMapping("/{id}/delete")

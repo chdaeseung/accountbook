@@ -1,48 +1,142 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>거래내역 목록</title>
+    <meta charset="UTF-8">
 </head>
 <body>
+
 <h1>거래내역 목록</h1>
 
+<form th:action="@{/transactions}" method="get">
+    <div>
+        <label>시작일</label>
+        <input type="date" name="startDate" th:value="${searchDto.startDate}">
+    </div>
+
+    <div>
+        <label>종료일</label>
+        <input type="date" name="endDate" th:value="${searchDto.endDate}">
+    </div>
+
+    <div>
+        <label>카테고리</label>
+        <select name="categoryId">
+            <option value="">전체</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}"
+                    th:selected="${searchDto.categoryId != null and searchDto.categoryId == category.id}">
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <label>유형</label>
+        <select name="type">
+            <option value="">전체</option>
+            <option value="INCOME"
+                    th:selected="${searchDto.type != null and searchDto.type.name() == 'INCOME'}">
+                수입
+            </option>
+            <option value="EXPENSE"
+                    th:selected="${searchDto.type != null and searchDto.type.name() == 'EXPENSE'}">
+                지출
+            </option>
+        </select>
+    </div>
+
+    <input type="hidden" name="page" value="0">
+    <input type="hidden" name="size" th:value="${searchDto.size}">
+
+    <button type="submit">검색</button>
+    <a th:href="@{/transactions}">초기화</a>
+</form>
+
+<hr>
+
 <div>
-    <a th:href="@{/dashboard}">대시보드</a>
     <a th:href="@{/transactions/create}">거래내역 등록</a>
-    <a th:href="@{/categories}">카테고리 관리</a>
+    <a th:href="@{/dashboard}">대시보드</a>
 </div>
 
 <table border="1">
     <thead>
     <tr>
         <th>날짜</th>
+        <th>카테고리</th>
         <th>유형</th>
         <th>금액</th>
-        <th>카테고리</th>
-        <th>메모</th>
+        <th>내용</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:if="${#lists.isEmpty(transactions)}">
-        <td colspan="5">등록된 거래내역이 없습니다.</td>
+    <tr th:if="${transactionPage.content.isEmpty()}">
+        <td colspan="5">조회된 거래내역이 없습니다.</td>
     </tr>
-    <tr th:each="transaction : ${transactions}">
-        <td th:text="${transaction.date}"></td>
-        <td th:text="${transaction.type.getDescription()}"></td>
-        <td th:text="${transaction.amount}"></td>
-        <td th:text="${transaction.category}"></td>
+
+    <tr th:each="transaction : ${transactionPage.content}">
+        <td th:text="${transaction.date}">날짜</td>
+        <td th:text="${transaction.categoryName}">카테고리</td>
+        <td th:text="${transaction.type.getDescription()}">수입/지출</td>
+        <td th:text="${transaction.amount}">금액</td>
         <td>
-            <a th:href="@{/transactions/{id}(id=${transaction.id})}">
-                <span th:text="${transaction.memo}"></span>
+            <a th:href="@{/transactions/{id}(id=${transaction.id})}"
+               th:text="${transaction.memo != null and !#strings.isEmpty(transaction.memo) ? transaction.memo : '(내용 없음)'}">
+                메모
             </a>
         </td>
     </tr>
     </tbody>
 </table>
-<!--<a th:href="@{/transactions/{id}(id=${transaction.id})}">-->
-<!--    상세보기-->
-<!--</a>-->
+
+<hr>
+
+<div th:if="${transactionPage.totalPages > 0}">
+    <a th:if="${!transactionPage.first}"
+       th:href="@{/transactions(
+            page=${transactionPage.number - 1},
+            size=${searchDto.size},
+            startDate=${searchDto.startDate},
+            endDate=${searchDto.endDate},
+            categoryId=${searchDto.categoryId},
+            type=${searchDto.type}
+       )}">
+        이전
+    </a>
+
+    <span th:each="pageNum : ${#numbers.sequence(0, transactionPage.totalPages - 1)}">
+        <a th:if="${pageNum != transactionPage.number}"
+           th:href="@{/transactions(
+                page=${pageNum},
+                size=${searchDto.size},
+                startDate=${searchDto.startDate},
+                endDate=${searchDto.endDate},
+                categoryId=${searchDto.categoryId},
+                type=${searchDto.type}
+           )}"
+           th:text="${pageNum + 1}">
+            1
+        </a>
+
+        <span th:if="${pageNum == transactionPage.number}"
+              th:text="${pageNum + 1}">
+            1
+        </span>
+    </span>
+
+    <a th:if="${!transactionPage.last}"
+       th:href="@{/transactions(
+            page=${transactionPage.number + 1},
+            size=${searchDto.size},
+            startDate=${searchDto.startDate},
+            endDate=${searchDto.endDate},
+            categoryId=${searchDto.categoryId},
+            type=${searchDto.type}
+       )}">
+        다음
+    </a>
+</div>
 
 </body>
 </html>

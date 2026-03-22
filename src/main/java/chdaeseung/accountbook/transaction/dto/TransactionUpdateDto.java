@@ -1,8 +1,6 @@
 package chdaeseung.accountbook.transaction.dto;
 
-import chdaeseung.accountbook.category.entity.Category;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class UpdateDto {
+public class TransactionUpdateDto {
     @NotNull(message = "거래 유형을 선택해주세요.")
     private TransactionType type;
 
