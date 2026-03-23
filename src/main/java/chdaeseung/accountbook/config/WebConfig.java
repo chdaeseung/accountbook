@@ -13,7 +13,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns(
                         "/transactions/**",
                         "/categories/**",
-                        "/dashboard"
+                        "/dashboard",
+                        "/recurring/**"
                 )
                 .excludePathPatterns(
                         "/users/login",

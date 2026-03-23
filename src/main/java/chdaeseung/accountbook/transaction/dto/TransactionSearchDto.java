@@ -21,5 +21,6 @@ public class TransactionSearchDto {
     private TransactionType type;
 
     private int page = 0;
+
     private int size = 10;
 }

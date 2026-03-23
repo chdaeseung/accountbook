@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>정기 지출 목록</title>
+</head>
+<body>
+
+<h1>정기 지출 목록</h1>
+
+<div>
+    <a th:href="@{/recurring/create}">정기 지출 추가</a>
+    <a th:href="@{/dashboard}">대시보드로</a>
+</div>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>카테고리</th>
+        <th>금액</th>
+        <th>매월</th>
+        <th>시작일</th>
+        <th>종료일</th>
+        <th>사용 여부</th>
+        <th>메모</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(recurringTransactions)}">
+        <td colspan="8">등록된 정기 지출이 없습니다.</td>
+    </tr>
+
+    <tr th:each="item : ${recurringTransactions}">
+        <td th:text="${item.categoryName}">카테고리</td>
+        <td th:text="${#numbers.formatInteger(item.amount, 3, 'COMMA')}">금액</td>
+        <td th:text="${item.dayOfMonth + '일'}">주기</td>
+        <td th:text="${item.startDate}">시작일</td>
+        <td th:text="${item.endDate != null ? item.endDate : '-'}">종료일</td>
+        <td th:style="${item.isDone ? 'color:blue;' : 'color:gray;'}"
+            th:text="${item.isDone ? '사용중' : '중지'}">
+            사용중
+        </td>
+        <td>
+            <a th:href="@{/recurring/{id}(id=${item.id})}"
+               th:text="${item.memo != null and !#strings.isEmpty(item.memo) ? item.memo : '(내용 없음)'}">
+                메모
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

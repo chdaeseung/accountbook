@@ -1,9 +1,7 @@
-package chdaeseung.accountbook.transaction.dto;
+package chdaeseung.accountbook.recurring.dto;
 
 import chdaeseung.accountbook.transaction.entity.TransactionType;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,16 +9,20 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class TransactionCreateDto {
-    private TransactionType type;
+public class RecurringTransactionCreateDto {
+    private String memo;
 
     private Long amount;
 
+    private Integer dayOfMonth;
+
     private Long categoryId;
 
-    private String memo;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    private LocalDate endDate;
+
+    private boolean isDone;
 }

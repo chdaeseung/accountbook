@@ -12,10 +12,15 @@ import java.time.LocalDate;
 public class TransactionDetailDto {
 
     private Long id;
+
     private LocalDate date;
+
     private String categoryName;
+
     private TransactionType type;
+
     private Long amount;
+
     private String memo;
 
     public static TransactionDetailDto from(Transaction transaction) {

@@ -8,12 +8,16 @@ import java.time.LocalDate;
 
 @Getter
 public class TransactionResponseDto {
-
     private final Long id;
+
     private final TransactionType type;
+
     private final Long amount;
+
     private final String category;
+
     private final String memo;
+
     private final LocalDate date;
 
     public TransactionResponseDto(Transaction transaction) {

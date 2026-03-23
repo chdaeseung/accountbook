@@ -15,10 +15,16 @@ public enum ErrorCode {
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "사용중인 아이디입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "사용중인 이메일입니다."),
     BLANK_CATEGORY_NAME(HttpStatus.CONFLICT, "카테고리 이름을 입력해주세요."),
+    CHOOSE_CATEGORY(HttpStatus.CONFLICT, "카테고리를 선택해주세요"),
     CATEGORY_IN_USE(HttpStatus.CONFLICT, "사용중인 카테고리는 삭제할 수 없습니다."),
     DUPLICATE_CATEGORY(HttpStatus.CONFLICT, "이미 등록된 카테코리입니다."),
     INCORRECT_ACCOUNT(HttpStatus.CONFLICT, "아이디 또는 비밀번호가 일치하지 않습니다."),
-    CANT_BE_END_DATE(HttpStatus.CONFLICT, "시작일이 종료일보다 이후일 수 없습니다.");
+    CANT_BE_END_DATE(HttpStatus.CONFLICT, "시작일이 종료일보다 이후일 수 없습니다."),
+    RECURRING_NOT_FOND(HttpStatus.NOT_FOUND, "정기 지출을 찾을 수 없습니다."),
+    INSERT_AMOUNT(HttpStatus.CONFLICT, "금액은 0보다 커야합니다."),
+    INCORRECT_DAY(HttpStatus.CONFLICT, "반복일을 1일부터 31일 사이로 입력해주세요."),
+    INPUT_START_DAY(HttpStatus.CONFLICT, "시작일을 입력해주세요.");
+
 
     private final HttpStatus status;
     private final String message;

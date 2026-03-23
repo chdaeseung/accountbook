@@ -11,10 +11,15 @@ import java.time.LocalDate;
 @Builder
 public class TransactionListResponseDto {
     private Long id;
+
     private LocalDate date;
+
     private String categoryName;
+
     private TransactionType type;
+
     private Long amount;
+
     private String memo;
 
     public static TransactionListResponseDto from(Transaction transaction) {

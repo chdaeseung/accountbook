@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>정기 지출 등록</title>
+</head>
+<body>
+
+<h1>정기 지출 등록</h1>
+
+<form th:action="@{/recurring}"
+      th:object="${recurringTransactionCreateDto}"
+      method="post">
+
+    <div>
+        <label>메모</label>
+        <input type="text" th:field="*{memo}">
+    </div>
+
+    <div>
+        <label>금액</label>
+        <input type="number" th:field="*{amount}">
+    </div>
+
+    <div>
+        <label>카테고리</label>
+        <select th:field="*{categoryId}">
+            <option value="">카테고리 선택</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <label>매월 반복일</label>
+        <input type="number" th:field="*{dayOfMonth}" min="1" max="31">
+    </div>
+
+    <div>
+        <label>시작일</label>
+        <input type="date" th:field="*{startDate}">
+    </div>
+
+    <div>
+        <label>종료일</label>
+        <input type="date" th:field="*{endDate}">
+    </div>
+
+    <div>
+        <label>사용 여부</label>
+        <input type="checkbox" th:field="*{done}">
+    </div>
+
+    <button type="submit">저장</button>
+    <a th:href="@{/recurring}">취소</a>
+</form>
+
+</body>
+</html>

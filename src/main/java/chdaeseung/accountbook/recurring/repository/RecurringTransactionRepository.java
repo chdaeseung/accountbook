@@ -1,0 +1,13 @@
+package chdaeseung.accountbook.recurring.repository;
+
+import chdaeseung.accountbook.recurring.entity.RecurringTransaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface RecurringTransactionRepository extends JpaRepository<RecurringTransaction, Long> {
+    List<RecurringTransaction> findAllByUserIdOrderByDayOfMonthAsc(Long userId);
+
+    Optional<RecurringTransaction> findByIdAndUserId(Long id, Long userId);
+}

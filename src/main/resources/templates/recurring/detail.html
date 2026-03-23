@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>정기 지출 상세</title>
+</head>
+<body>
+
+<h1>정기 지출 상세</h1>
+
+<table border="1">
+    <tr>
+        <th>메모</th>
+        <td th:text="${recurringTransaction.memo}">월세</td>
+    </tr>
+    <tr>
+        <th>카테고리</th>
+        <td th:text="${recurringTransaction.categoryName}">주거</td>
+    </tr>
+    <tr>
+        <th>금액</th>
+        <td th:text="${#numbers.formatInteger(recurringTransaction.amount, 3, 'COMMA')}">500,000</td>
+    </tr>
+    <tr>
+        <th>결제일</th>
+        <td th:text="${'매월 ' + recurringTransaction.dayOfMonth + '일'}">매월 1일</td>
+    </tr>
+    <tr>
+        <th>시작일</th>
+        <td th:text="${recurringTransaction.startDate}">2026-03-01</td>
+    </tr>
+    <tr>
+        <th>종료일</th>
+        <td th:text="${recurringTransaction.endDate != null ? recurringTransaction.endDate : '-'}">-</td>
+    </tr>
+    <tr>
+        <th>사용 여부</th>
+        <td>
+            <span th:text="${recurringTransaction.isDone ? '사용중' : '중지'}">사용중</span>
+
+            <form th:action="@{/recurring/{id}/toggle(id=${recurringTransaction.id})}"
+                  method="post"
+                  style="display:inline; margin-left:10px;">
+                <button type="submit"
+                        th:text="${recurringTransaction.isDone ? '변경' : '변경'}">
+                    중지로 변경
+                </button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<div style="margin-top: 20px;">
+    <a th:href="@{/recurring/{id}/update(id=${recurringTransaction.id})}">수정</a>
+
+    <form th:action="@{/recurring/{id}/delete(id=${recurringTransaction.id})}"
+          method="post"
+          style="display:inline;"
+          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+        <button type="submit">삭제</button>
+    </form>
+
+    <a th:href="@{/recurring}">목록으로</a>
+    <a th:href="@{/dashboard}">대시보드로</a>
+</div>
+
+</body>
+</html>
