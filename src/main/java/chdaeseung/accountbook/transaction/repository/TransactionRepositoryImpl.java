@@ -2,6 +2,7 @@ package chdaeseung.accountbook.transaction.repository;
 
 import chdaeseung.accountbook.category.entity.QCategory;
 import chdaeseung.accountbook.transaction.dto.TransactionSearchDto;
+import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.QTransaction;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
@@ -35,7 +36,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         startDateGoe(searchDto.getStartDate(), transaction),
                         endDateLoe(searchDto.getEndDate(), transaction),
                         categoryIdEq(searchDto.getCategoryId(), category),
-                        typeEq(searchDto.getType(), transaction)
+                        typeEq(searchDto.getType(), transaction),
+                        expenseTypeEq(searchDto.getExpenseType(), transaction)
                 )
                 .orderBy(transaction.date.desc(), transaction.id.desc())
                 .offset(pageable.getOffset())
@@ -51,7 +53,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         startDateGoe(searchDto.getStartDate(), transaction),
                         endDateLoe(searchDto.getEndDate(), transaction),
                         categoryIdEq(searchDto.getCategoryId(), category),
-                        typeEq(searchDto.getType(), transaction)
+                        typeEq(searchDto.getType(), transaction),
+                        expenseTypeEq(searchDto.getExpenseType(), transaction)
                 )
                 .fetchOne();
 
@@ -76,5 +79,9 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     private BooleanExpression typeEq(TransactionType type, QTransaction transaction) {
         return type != null ? transaction.type.eq(type) : null;
+    }
+
+    private BooleanExpression expenseTypeEq(ExpenseType expenseType, QTransaction transaction) {
+        return expenseType != null ? transaction.expenseType.eq(expenseType) : null;
     }
 }

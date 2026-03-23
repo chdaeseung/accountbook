@@ -7,7 +7,7 @@
 <body>
 <h1>거래내역 수정</h1>
 
-<form th:action="@{/transactions/{id}/edit(id=${transactionId})}"
+<form th:action="@{/transactions/{id}/update(id=${transactionId})}"
       th:object="${transaction}"
       method="post">
 
@@ -29,9 +29,18 @@
 
     <div>
         <label>유형</label>
-        <select th:field="*{type}">
+        <select th:field="*{type}" id="typeSelect" onchange="toggleExpenseType()">
             <option value="INCOME">수입</option>
             <option value="EXPENSE">지출</option>
+        </select>
+    </div>
+
+    <div>
+        <label>지출 성격</label>
+        <select th:field="*{expenseType}">
+            <option value="">선택</option>
+            <option value="FIXED">고정지출</option>
+            <option value="VARIABLE">변동지출</option>
         </select>
     </div>
 
@@ -48,6 +57,23 @@
     <button type="submit">수정 완료</button>
     <a th:href="@{/transactions/{id}(id=${transactionId})}">취소</a>
 </form>
+
+<script>
+    function toggleExpenseType() {
+        const typeSelect = document.getElementById("typeSelect");
+        const expenseTypeBox = document.getElementById("expenseTypeBox");
+
+        if (typeSelect.value === "EXPENSE") {
+            expenseTypeBox.style.display = "block";
+        } else {
+            expenseTypeBox.style.display = "none";
+        }
+    }
+
+    window.onload = function () {
+        toggleExpenseType();
+    };
+</script>
 
 </body>
 </html>

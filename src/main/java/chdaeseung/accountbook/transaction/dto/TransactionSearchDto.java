@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.dto;
 
+import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,8 @@ public class TransactionSearchDto {
     private Long categoryId;
 
     private TransactionType type;
+
+    private ExpenseType expenseType;
 
     private int page = 0;
 

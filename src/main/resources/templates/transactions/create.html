@@ -59,15 +59,18 @@
 
 <h1>거래내역 등록</h1>
 
-<form th:action="@{/transactions/create}" th:object="${transactionCreateDto}" method="post">
+<form th:action="@{/transactions}" th:object="${transactionRequestDto}" method="post">
     <div class="field-row">
         <label>날짜</label>
-        <input type="date" th:field="*{date}">
+        <label>
+            <input type="date" th:field="*{date}">
+        </label>
     </div>
 
     <div class="field-row">
         <label>카테고리</label>
         <div class="category-row">
+            <label for="categorySelect"></label>
             <select th:field="*{categoryId}" id="categorySelect">
                 <option value="">카테고리 선택</option>
                 <option th:each="category : ${categories}"
@@ -86,6 +89,15 @@
             <option value="">유형 선택</option>
             <option value="INCOME">수입</option>
             <option value="EXPENSE">지출</option>
+        </select>
+    </div>
+
+    <div>
+        <label>지출 성격</label>
+        <select th:field="*{expenseType}">
+            <option value="">선택</option>
+            <option value="FIXED">고정지출</option>
+            <option value="VARIABLE">변동지출</option>
         </select>
     </div>
 

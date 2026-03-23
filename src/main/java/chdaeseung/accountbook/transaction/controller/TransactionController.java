@@ -22,7 +22,7 @@ public class TransactionController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public String getTransactions(@ModelAttribute TransactionSearchDto searchDto, HttpSession session, Model model) {
+    public String getTransactionsList(@ModelAttribute TransactionSearchDto searchDto, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
         Page<TransactionListResponseDto> transactionPage = transactionService.getTransactions(loginUser.getId(), searchDto);
@@ -34,60 +34,54 @@ public class TransactionController {
         return "/transactions/list";
     }
 
+    @PostMapping
+    public String createTransaction(@ModelAttribute TransactionRequestDto transactionRequestDto, HttpSession session) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+
+        transactionService.createTransaction(transactionRequestDto, loginUser.getId());
+
+        return "redirect:/dashboard";
+    }
+
     @GetMapping("/create")
     public String create(Model model, HttpSession session) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        model.addAttribute("transactionCreateDto", new TransactionCreateDto());
-        model.addAttribute("createDto", new TransactionCreateDto());
+        model.addAttribute("transactionRequestDto", new TransactionRequestDto());
         model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
 
         return "/transactions/create";
-    }
-
-    @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("createDto") TransactionCreateDto transactionCreateDto, BindingResult bindingResult, HttpSession session, Model model) {
-        System.out.println("create - controller");
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(bindingResult.hasErrors()) {
-            model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
-            return "/transactions/create";
-        }
-
-        transactionService.createTransaction(transactionCreateDto, loginUser.getId());
-        return "redirect:/dashboard";
     }
 
     @GetMapping("/{transactionId}")
     public String getTransactionDetail(@PathVariable Long transactionId, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        TransactionDetailDto transaction = transactionService.getTransactionDetail(loginUser.getId(), transactionId);
+        TransactionDetailResponseDto transaction = transactionService.getTransactionDetail(loginUser.getId(), transactionId);
 
         model.addAttribute("transaction", transaction);
 
         return "/transactions/detail";
     }
 
-    @GetMapping("/{id}/edit")
-    public String editTransaction(@PathVariable Long id, HttpSession session, Model model) {
+    @GetMapping("/{id}/update")
+    public String updateTransaction(@PathVariable Long id, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        TransactionUpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
+        TransactionRequestDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
 
         model.addAttribute("transactionId", id);
         model.addAttribute("transaction", transaction);
         model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
 
-        return "/transactions/edit";
+        return "/transactions/update";
     }
 
-    @PostMapping("/{id}/edit")
-    public String editTransaction(@PathVariable Long id, @ModelAttribute TransactionUpdateDto transactionUpdateDto, HttpSession session) {
+    @PostMapping("/{id}/update")
+    public String updateTransaction(@PathVariable Long id, @ModelAttribute TransactionRequestDto transactionRequestDto, HttpSession session) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
-        transactionService.updateTransaction(id, loginUser.getId(), transactionUpdateDto);
+        transactionService.updateTransaction(id, loginUser.getId(), transactionRequestDto);
 
         return "redirect:/transactions/" + id;
     }

@@ -12,6 +12,9 @@
     <a th:href="@{/recurring/create}">정기 지출 추가</a>
     <a th:href="@{/dashboard}">대시보드로</a>
 </div>
+<form th:action="@{/recurring/generate}" method="post" style="margin-bottom: 20px;">
+    <button type="submit">자동 거래 생성 테스트</button>
+</form>
 
 <table border="1">
     <thead>

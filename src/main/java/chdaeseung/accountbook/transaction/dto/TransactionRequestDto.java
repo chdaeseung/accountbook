@@ -1,9 +1,8 @@
 package chdaeseung.accountbook.transaction.dto;
 
+import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,16 +10,17 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class TransactionCreateDto {
-    private TransactionType type;
-
-    private Long amount;
+public class TransactionRequestDto {
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
 
     private Long categoryId;
 
-    private String memo;
+    private TransactionType type;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    private ExpenseType expenseType;
+
+    private Long amount;
+
+    private String memo;
 }

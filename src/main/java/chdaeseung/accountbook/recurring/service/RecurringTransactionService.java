@@ -121,7 +121,7 @@ public class RecurringTransactionService {
     private void validateRecurring(RecurringTransactionCreateDto createDto) {
 
         if(createDto.getAmount() == null || createDto.getAmount() <= 0) {
-            throw new CustomException(ErrorCode.INSERT_AMOUNT);
+            throw new CustomException(ErrorCode.MINIMUM_AMOUNT);
         }
 
         if(createDto.getCategoryId() == null) {

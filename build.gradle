@@ -49,3 +49,5 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+def generated = 'src/main/generated'

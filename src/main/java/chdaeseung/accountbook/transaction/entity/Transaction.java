@@ -1,8 +1,10 @@
 package chdaeseung.accountbook.transaction.entity;
 
 import chdaeseung.accountbook.category.entity.Category;
+import chdaeseung.accountbook.recurring.entity.RecurringTransaction;
 import chdaeseung.accountbook.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,15 +20,15 @@ public class Transaction {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TransactionType type;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ExpenseType expenseType;
+
     private Long amount;
 
     private String memo;
 
-    @Column(nullable = false)
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,17 +39,25 @@ public class Transaction {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Transaction(TransactionType type, Long amount, Category category, String memo, LocalDate date, User user) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recurring_transaction_id")
+    private RecurringTransaction recurringTransaction;
+
+    @Builder
+    public Transaction(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, User user, RecurringTransaction recurringTransaction) {
         this.type = type;
+        this.expenseType = expenseType;
         this.amount = amount;
         this.category = category;
         this.memo = memo;
         this.date = date;
         this.user = user;
+        this.recurringTransaction = recurringTransaction;
     }
 
-    public void update(TransactionType type, Long amount, Category category, String memo, LocalDate date) {
+    public void update(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date) {
         this.type = type;
+        this.expenseType = expenseType;
         this.amount = amount;
         this.category = category;
         this.memo = memo;

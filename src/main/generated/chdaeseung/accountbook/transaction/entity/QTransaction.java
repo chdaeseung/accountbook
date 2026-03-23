@@ -28,9 +28,13 @@ public class QTransaction extends EntityPathBase<Transaction> {
 
     public final DatePath<java.time.LocalDate> date = createDate("date", java.time.LocalDate.class);
 
+    public final EnumPath<ExpenseType> expenseType = createEnum("expenseType", ExpenseType.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath memo = createString("memo");
+
+    public final chdaeseung.accountbook.recurring.entity.QRecurringTransaction recurringTransaction;
 
     public final EnumPath<TransactionType> type = createEnum("type", TransactionType.class);
 
@@ -55,6 +59,7 @@ public class QTransaction extends EntityPathBase<Transaction> {
     public QTransaction(Class<? extends Transaction> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.category = inits.isInitialized("category") ? new chdaeseung.accountbook.category.entity.QCategory(forProperty("category"), inits.get("category")) : null;
+        this.recurringTransaction = inits.isInitialized("recurringTransaction") ? new chdaeseung.accountbook.recurring.entity.QRecurringTransaction(forProperty("recurringTransaction"), inits.get("recurringTransaction")) : null;
         this.user = inits.isInitialized("user") ? new chdaeseung.accountbook.user.entity.QUser(forProperty("user")) : null;
     }
 

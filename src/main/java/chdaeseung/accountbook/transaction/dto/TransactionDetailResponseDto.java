@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.dto;
 
+import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import lombok.Builder;
@@ -9,8 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-public class TransactionDetailDto {
-
+public class TransactionDetailResponseDto {
     private Long id;
 
     private LocalDate date;
@@ -19,18 +19,24 @@ public class TransactionDetailDto {
 
     private TransactionType type;
 
+    private ExpenseType expenseType;
+
     private Long amount;
 
     private String memo;
 
-    public static TransactionDetailDto from(Transaction transaction) {
-        return TransactionDetailDto.builder()
+    private boolean recurring;
+
+    public static TransactionDetailResponseDto from(Transaction transaction) {
+        return TransactionDetailResponseDto.builder()
                 .id(transaction.getId())
                 .date(transaction.getDate())
                 .categoryName(transaction.getCategory().getName())
                 .type(transaction.getType())
+                .expenseType(transaction.getExpenseType())
                 .amount(transaction.getAmount())
                 .memo(transaction.getMemo())
+                .recurring(transaction.getRecurringTransaction() != null)
                 .build();
     }
 }

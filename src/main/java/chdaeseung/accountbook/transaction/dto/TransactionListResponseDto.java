@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.dto;
 
+import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import lombok.Builder;
@@ -18,9 +19,13 @@ public class TransactionListResponseDto {
 
     private TransactionType type;
 
+    private ExpenseType expenseType;
+
     private Long amount;
 
     private String memo;
+
+    private boolean recurring;
 
     public static TransactionListResponseDto from(Transaction transaction) {
         return TransactionListResponseDto.builder()
@@ -30,6 +35,7 @@ public class TransactionListResponseDto {
                 .type(transaction.getType())
                 .amount(transaction.getAmount())
                 .memo(transaction.getMemo())
+                .recurring(transaction.getRecurringTransaction() != null)
                 .build();
     }
 }

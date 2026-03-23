@@ -19,7 +19,13 @@
     </tr>
     <tr>
         <th>유형</th>
-        <td th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">지출</td>
+        <td>
+            <span th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">지출</span>
+            <span th:if="${transaction.type.name() == 'EXPENSE' and transaction.expenseType != null}"
+                  th:text="${transaction.expenseType.name() == 'FIXED' ? '(고정지출)' : '(변동지출)'}">
+                (고정지출)
+            </span>
+        </td>
     </tr>
     <tr>
         <th>금액</th>
@@ -35,15 +41,18 @@
 </table>
 
 <div style="margin-top: 20px;">
-    <a th:href="@{/transactions}">목록으로</a>
-    <a th:href="@{/dashboard}">대시보드</a>
-    <a th:href="@{/transactions/{id}/edit(id=${transaction.id})}">수정</a>
+    <a th:href="@{/transactions/{id}/update(id=${transaction.id})}">수정</a>
 
+    <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}"
+          method="post"
+          style="display:inline;"
+          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+        <button type="submit">삭제</button>
+    </form>
+
+    <a th:href="@{/transactions}">목록으로</a>
+    <a th:href="@{/dashboard}">대시보드로</a>
 </div>
-<form th:action="@{/transactions/{id}/delete(id=${transaction.id})}" method="post"
-      onsubmit="return confirm('정말 삭제하시겠습니까?');">
-    <button type="submit">삭제</button>
-</form>
 
 </body>
 </html>
