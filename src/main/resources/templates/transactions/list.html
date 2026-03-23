@@ -78,8 +78,11 @@
     <tr th:each="transaction : ${transactionPage.content}">
         <td th:text="${transaction.date}">날짜</td>
         <td th:text="${transaction.categoryName}">카테고리</td>
-        <td th:text="${transaction.type.getDescription()}">수입/지출</td>
-        <td th:text="${transaction.amount}">금액</td>
+        <td th:style="${transaction.type.name() == 'INCOME' ? 'color:blue;' : 'color:red;'}"
+            th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">
+            지출
+        </td>
+        <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}">금액</td>
         <td>
             <a th:href="@{/transactions/{id}(id=${transaction.id})}"
                th:text="${transaction.memo != null and !#strings.isEmpty(transaction.memo) ? transaction.memo : '(내용 없음)'}">

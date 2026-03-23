@@ -41,13 +41,15 @@
     </tr>
     <tr th:each="transaction : ${dashboard.recentTransactions}">
         <td th:text="${transaction.date}"></td>
-        <td th:text="${transaction.type.getDescription()}"></td>
+        <td th:style="${transaction.type.name() == 'INCOME' ? 'color:blue;' : 'color:red;'}"
+            th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">
+            지출
+        </td>
         <td th:text="${transaction.category}"></td>
-        <td th:text="${transaction.amount}"></td>
+        <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}"></td>
         <td>
             <a th:href="@{/transactions/{id}(id=${transaction.id})}"
                th:text="${transaction.memo != null and !#strings.isEmpty(transaction.memo) ? transaction.memo : '(내용 없음)'}">
-                메모
             </a>
         </td>
     </tr>

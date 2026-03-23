@@ -23,7 +23,7 @@
     </tr>
     <tr>
         <th>금액</th>
-        <td th:text="${transaction.amount}">금액</td>
+        <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}">금액</td>
     </tr>
     <tr>
         <th>메모</th>
@@ -37,7 +37,13 @@
 <div style="margin-top: 20px;">
     <a th:href="@{/transactions}">목록으로</a>
     <a th:href="@{/dashboard}">대시보드</a>
+    <a th:href="@{/transactions/{id}/edit(id=${transaction.id})}">수정</a>
+
 </div>
+<form th:action="@{/transactions/{id}/delete(id=${transaction.id})}" method="post"
+      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+    <button type="submit">삭제</button>
+</form>
 
 </body>
 </html>

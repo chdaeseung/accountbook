@@ -75,22 +75,17 @@ public class TransactionController {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
 
         TransactionUpdateDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
-        model.addAttribute("transaction", transaction);
+
         model.addAttribute("transactionId", id);
+        model.addAttribute("transaction", transaction);
         model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
 
         return "/transactions/edit";
     }
 
     @PostMapping("/{id}/edit")
-    public String editTransaction(@PathVariable Long id, @Valid @ModelAttribute("transaction") TransactionUpdateDto transactionUpdateDto, BindingResult bindingResult, HttpSession session, Model model) {
+    public String editTransaction(@PathVariable Long id, @ModelAttribute TransactionUpdateDto transactionUpdateDto, HttpSession session) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(bindingResult.hasErrors()) {
-            model.addAttribute("transactionId", id);
-            model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
-            return "/transactions/edit";
-        }
 
         transactionService.updateTransaction(id, loginUser.getId(), transactionUpdateDto);
 
@@ -103,6 +98,6 @@ public class TransactionController {
 
         transactionService.deleteTransaction(id, loginuser.getId());
 
-        return "redirect:/transactions";
+        return "redirect:/dashboard";
     }
 }

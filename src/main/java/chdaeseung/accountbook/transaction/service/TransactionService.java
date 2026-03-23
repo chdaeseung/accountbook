@@ -65,6 +65,7 @@ public class TransactionService {
         return TransactionDetailDto.from(transaction);
     }
 
+    @Transactional(readOnly = true)
     public TransactionUpdateDto transactionUpdate(Long transactionId, Long userId) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
@@ -88,12 +89,12 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
-        if(!transaction.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
-        }
-
         Category category = categoryRepository.findByIdAndUserId(transactionUpdateDto.getCategoryId(), userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if(!category.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
+        }
 
         transaction.update(
                 transactionUpdateDto.getType(),
