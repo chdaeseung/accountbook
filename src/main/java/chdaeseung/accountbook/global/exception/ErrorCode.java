@@ -26,7 +26,8 @@ public enum ErrorCode {
     INPUT_START_DAY(HttpStatus.CONFLICT, "시작일을 입력해주세요."),
     INSERT_DATE(HttpStatus.CONFLICT, "날짜를 입력해주세요."),
     CHOOSE_TYPE(HttpStatus.CONFLICT, "거래 유형을 선택해주세요."),
-    CHOOSE_EXPENSE_TYPE(HttpStatus.CONFLICT, "지출 유형을 선택해주세요.");
+    CHOOSE_EXPENSE_TYPE(HttpStatus.CONFLICT, "지출 유형을 선택해주세요."),
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌를 찾을 수 없습니다.");
 
 
     private final HttpStatus status;

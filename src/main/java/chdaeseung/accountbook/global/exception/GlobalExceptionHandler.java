@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public String handleCustomException(CustomException e, Model model) {
-        model.addAttribute("message", e.getErrorCode().getMessage());
+        model.addAttribute("message", e.getMessage());
 
         return "error/error";
     }

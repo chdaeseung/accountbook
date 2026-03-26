@@ -60,8 +60,12 @@ public class RecurringTransaction {
         this.category = category;
     }
 
-    public void toggleDone() {
-        this.isDone = !this.isDone;
+    public void deactivate() {
+        this.isDone = false;
+    }
+
+    public void activate() {
+        this.isDone = true;
     }
 }
 

@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>정기 지출 목록</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
-<h1>정기 지출 목록</h1>
-
+<nav>
+    <a th:href="@{/dashboard}">대시보드</a>
+    <a th:href="@{/transactions}">거래내역</a>
+    <a th:href="@{/categories}">카테고리 관리</a>
+    <a th:href="@{/recurring}">정기 지출 관리</a>
+    <a th:href="@{/bank-account}">계좌 관리</a>
+</nav>
 <div>
     <a th:href="@{/recurring/create}">정기 지출 추가</a>
     <a th:href="@{/dashboard}">대시보드로</a>

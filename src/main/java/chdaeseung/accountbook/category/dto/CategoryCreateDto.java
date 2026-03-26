@@ -9,5 +9,6 @@ import lombok.Setter;
 @Setter
 public class CategoryCreateDto {
 
+    @NotBlank(message = "카테고리 이름을 입력해주세요.")
     private String name;
 }

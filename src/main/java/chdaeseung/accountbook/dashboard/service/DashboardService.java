@@ -1,6 +1,14 @@
 package chdaeseung.accountbook.dashboard.service;
 
+import chdaeseung.accountbook.bank.entity.BankAccount;
+import chdaeseung.accountbook.bank.entity.BankAccountType;
+import chdaeseung.accountbook.bank.repository.BankAccountRepository;
+import chdaeseung.accountbook.category.dto.CategoryExpenseDto;
+import chdaeseung.accountbook.dashboard.dto.DashboardBankAccountDto;
+import chdaeseung.accountbook.dashboard.dto.DashboardRecurringTransactionDto;
 import chdaeseung.accountbook.dashboard.dto.DashboardResponseDto;
+import chdaeseung.accountbook.recurring.entity.RecurringTransaction;
+import chdaeseung.accountbook.recurring.repository.RecurringTransactionRepository;
 import chdaeseung.accountbook.transaction.dto.TransactionResponseDto;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
@@ -9,7 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,14 +29,25 @@ import java.util.List;
 public class DashboardService {
 
     private final TransactionRepository transactionRepository;
+    private final RecurringTransactionRepository recurringTransactionRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     public DashboardResponseDto getDashboard(Long userId) {
-        List<Transaction> transactions = transactionRepository.findAllByUserId(userId);
+        LocalDate today = LocalDate.now();
+
+        return getDashboard(userId, today.getYear(), today.getMonthValue());
+    }
+
+    public DashboardResponseDto getDashboard(Long userId, int year, int month) {
+        LocalDate startDayOfMonth = LocalDate.of(year, month, 1);
+        LocalDate endDayOfMonth = startDayOfMonth.withDayOfMonth(startDayOfMonth.lengthOfMonth());
+
+        List<Transaction> monthlyTransactions = transactionRepository.findAllByUserIdAndDateBetween(userId, startDayOfMonth, endDayOfMonth);
 
         long totalIncome = 0L;
         long totalExpense = 0L;
 
-        for(Transaction transaction : transactions) {
+        for(Transaction transaction : monthlyTransactions) {
             if (transaction.getType() == TransactionType.INCOME) {
                 totalIncome += transaction.getAmount();
             } else if (transaction.getType() == TransactionType.EXPENSE) {
@@ -35,11 +58,76 @@ public class DashboardService {
         long balance = totalIncome - totalExpense;
 
         List<TransactionResponseDto> recentTransactions = transactionRepository
-                .findTop5ByUserIdOrderByDateDescIdDesc(userId)
+                .findTop5ByUserIdAndDateBetweenOrderByDateDescIdDesc(userId, startDayOfMonth, endDayOfMonth)
                 .stream()
                 .map(TransactionResponseDto::new)
                 .toList();
 
-        return new DashboardResponseDto(totalIncome, totalExpense, balance, recentTransactions);
+        LocalDate today = LocalDate.now();
+
+        List<RecurringTransaction> doneRecurringTransactions = recurringTransactionRepository.findAllByUserIdAndIsDoneTrueOrderByDayOfMonthAsc(userId);
+
+        List<RecurringTransaction> validRecurringTransactions = doneRecurringTransactions.stream()
+                .filter(recurringTransaction ->
+                        recurringTransaction.getEndDate() == null || !recurringTransaction.getEndDate().isBefore(today))
+                .toList();
+
+        List<DashboardRecurringTransactionDto> recurringTransactionDtos = validRecurringTransactions.stream()
+                .map(recurringTransaction -> new DashboardRecurringTransactionDto(
+                        recurringTransaction.getId(),
+                        recurringTransaction.getMemo(),
+                        recurringTransaction.getAmount(),
+                        recurringTransaction.getDayOfMonth(),
+                        recurringTransaction.getStartDate(),
+                        recurringTransaction.getCategory().getName(),
+                        recurringTransaction.isDone()
+                )).toList();
+
+        List<CategoryExpenseDto> top3ExpenseCategories = monthlyTransactions.stream()
+                .filter(transaction -> transaction.getType() == TransactionType.EXPENSE)
+                .filter(transaction -> transaction.getCategory() != null)
+                .collect(Collectors.groupingBy(
+                        transaction -> transaction.getCategory().getName(),
+                        Collectors.summingLong(Transaction::getAmount)
+                ))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(3)
+                .map(entry -> new CategoryExpenseDto(entry.getKey(), entry.getValue()))
+                .toList();
+
+        long monthlyRecurringExpenseTotal = validRecurringTransactions.stream()
+                .mapToLong(RecurringTransaction::getAmount)
+                .sum();
+
+        List<BankAccount> usedBankAccount = bankAccountRepository.findAllByUserIdAndUsedTrue(userId);
+
+        long totalBankAmount = usedBankAccount.stream()
+                .mapToLong(BankAccount::getBalance)
+                .sum();
+
+        List<DashboardBankAccountDto> bankAccounts = bankAccountRepository
+                .findTop5ByUserIdAndUsedTrueOrderByBalanceDesc(userId)
+                .stream()
+                .map(bankAccount -> new DashboardBankAccountDto(
+                        bankAccount.getId(),
+                        bankAccount.getBankName(),
+                        bankAccount.getAccountNumber(),
+                        bankAccount.getBalance(),
+                        getBankAccountTypeLabel(bankAccount.getType()),
+                        bankAccount.isUsed()
+                ))
+                .toList();
+
+        return new DashboardResponseDto(year, month, totalIncome, totalExpense, balance, recentTransactions, recurringTransactionDtos, monthlyRecurringExpenseTotal, top3ExpenseCategories, totalBankAmount, bankAccounts);
+    }
+
+    private String getBankAccountTypeLabel(BankAccountType type) {
+        if(type == BankAccountType.CHECKING) return "입출금";
+        if(type == BankAccountType.SAVING) return "적금";
+        if(type == BankAccountType.DEPOSIT) return "예금";
+        if(type == BankAccountType.CASH) return "현금";
+        return "";
     }
 }

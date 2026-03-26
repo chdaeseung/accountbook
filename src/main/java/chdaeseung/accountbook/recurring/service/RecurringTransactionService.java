@@ -87,13 +87,6 @@ public class RecurringTransactionService {
         );
     }
 
-    public void toggleDone(Long userId, Long recurringId) {
-        RecurringTransaction recurringTransaction = recurringTransactionRepository.findByIdAndUserId(recurringId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.RECURRING_NOT_FOND));
-
-        recurringTransaction.toggleDone();
-    }
-
     public void deleteRecurringTransaction(Long userId, Long recurringId) {
         RecurringTransaction recurringTransaction = recurringTransactionRepository.findByIdAndUserId(recurringId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RECURRING_NOT_FOND));

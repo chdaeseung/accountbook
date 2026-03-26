@@ -1,0 +1,33 @@
+.table {
+    display: inline-block;
+    border: 2px
+}
+
+.dashboard-recent-transactions {
+    display: inline-block;
+    border: 2px;
+}
+
+.dashboard-card {
+    display: inline-block;
+    border: 2px;
+}
+
+.dashboard-container{
+    margin-right: 50px;
+}
+
+.encrypted-password {
+    display: inline-block;
+    border: 2px;
+}
+
+.transaction {
+    display: inline-block;
+    border: 2px;
+}
+
+div {
+    display: inline-block;
+    margin-right: 20px;
+}

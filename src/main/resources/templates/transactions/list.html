@@ -3,11 +3,22 @@
 <head>
     <title>거래내역 목록</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        div {
+            display: inline-block;
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
-
-<h1>거래내역 목록</h1>
-
+<nav>
+    <a th:href="@{/dashboard}">대시보드</a>
+    <a th:href="@{/transactions}">거래내역</a>
+    <a th:href="@{/categories}">카테고리 관리</a>
+    <a th:href="@{/recurring}">정기 지출 관리</a>
+    <a th:href="@{/bank-account}">계좌 관리</a>
+</nav>
 <form th:action="@{/transactions}" method="get">
     <div>
         <label>시작일</label>
@@ -56,16 +67,17 @@
     <input type="hidden" name="page" value="0">
     <input type="hidden" name="size" th:value="${searchDto.size}">
 
+    <div></div>
     <button type="submit">검색</button>
     <a th:href="@{/transactions}">초기화</a>
+    <div></div>
+
+    <div>
+        <a th:href="@{/transactions/create}">거래내역 등록</a>
+    </div>
 </form>
 
 <hr>
-
-<div style="margin-top: 12px;">
-    <a th:href="@{/transactions/new}">거래내역 등록</a>
-</div>
-
 
 <table border="1">
     <thead>

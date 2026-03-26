@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 public class LoginUserDto {
-
     private final Long id;
+
     private final String username;
 
     public LoginUserDto(User user) {

@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>거래내역 수정</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>거래내역 수정</h1>
-
+<nav>
+    <a th:href="@{/dashboard}">대시보드</a>
+    <a th:href="@{/transactions}">거래내역</a>
+    <a th:href="@{/categories}">카테고리 관리</a>
+    <a th:href="@{/recurring}">정기 지출 관리</a>
+    <a th:href="@{/bank-account}">계좌 관리</a>
+</nav>
 <form th:action="@{/transactions/{id}/update(id=${transactionId})}"
       th:object="${transaction}"
       method="post">
@@ -32,15 +38,6 @@
         <select th:field="*{type}" id="typeSelect" onchange="toggleExpenseType()">
             <option value="INCOME">수입</option>
             <option value="EXPENSE">지출</option>
-        </select>
-    </div>
-
-    <div>
-        <label>지출 성격</label>
-        <select th:field="*{expenseType}">
-            <option value="">선택</option>
-            <option value="FIXED">고정지출</option>
-            <option value="VARIABLE">변동지출</option>
         </select>
     </div>
 

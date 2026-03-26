@@ -23,4 +23,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
     boolean existsByRecurringTransactionIdAndDate(Long recurringId, LocalDate date);
+
+    List<Transaction> findAllByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
+
+    List<Transaction> findTop5ByUserIdAndDateBetweenOrderByDateDescIdDesc(Long userId, LocalDate startDate, LocalDate endDate);
 }

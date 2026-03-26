@@ -29,11 +29,21 @@ public class CategoryController {
     }
 
     @PostMapping
-    public CategoryResponseDto createCategory(@RequestBody CategoryCreateDto createDto,
-                                              HttpSession session) {
-        LoginUserDto loginuser = (LoginUserDto) session.getAttribute("loginUser");
+    public String createCategory(@ModelAttribute("categoryForm") CategoryCreateDto createDto,
+                                              BindingResult bindingResult,
+                                              HttpSession session, Model model) {
+        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+        System.out.println("createDto : " + createDto.getName() + " 작동 중");
 
-        return categoryService.createCategory(loginuser.getId(), createDto);
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+            return "/categories/list";
+        }
+
+        categoryService.createCategory(loginUser.getId(), createDto);
+        System.out.println("서비스 완료");
+
+        return "redirect:/categories";
     }
 
     @PostMapping("/{id}/delete")

@@ -14,7 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/transactions/**",
                         "/categories/**",
                         "/dashboard",
-                        "/recurring/**"
+                        "/recurring/**",
+                        "/bank-account/**"
                 )
                 .excludePathPatterns(
                         "/users/login",

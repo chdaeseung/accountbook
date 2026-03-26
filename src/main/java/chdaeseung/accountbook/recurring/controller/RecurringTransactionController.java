@@ -54,15 +54,6 @@ public class RecurringTransactionController {
         return "redirect:/recurring";
     }
 
-    @PostMapping("/{id}/toggle")
-    public String toggle(@PathVariable Long id, HttpSession session) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-
-        recurringTransactionService.toggleDone(loginUser.getId(), id);
-
-        return "redirect:/recurring/" + id;
-    }
-
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, HttpSession session, Model model) {
         LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");

@@ -35,12 +35,12 @@ public class TransactionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Category category = categoryRepository.findByIdAndUserId(requestDto.getCategoryId(), userId)
+        Category category = categoryRepository.findById(requestDto.getCategoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         validateCategoryOwner(userId, category);
 
-        ExpenseType expenseType = resolveExpenseType(requestDto);
+        ExpenseType expenseType = resolveExpenseType(requestDto.getType());
 
         String memo = requestDto.getMemo() == null ? "" : requestDto.getMemo().trim();
 
@@ -83,7 +83,6 @@ public class TransactionService {
 
         TransactionRequestDto dto = new TransactionRequestDto();
         dto.setType(transaction.getType());
-        dto.setExpenseType(transaction.getExpenseType());
         dto.setAmount(transaction.getAmount());
         dto.setCategoryId(transaction.getCategory().getId());
         dto.setMemo(transaction.getMemo());
@@ -104,7 +103,7 @@ public class TransactionService {
 
         validateCategoryOwner(userId, category);
 
-        ExpenseType expenseType = resolveExpenseType(requestDto);
+        ExpenseType expenseType = resolveExpenseType(transaction ,requestDto.getType());
 
         String memo = requestDto.getMemo() == null ? "" : requestDto.getMemo().trim();
 
@@ -150,12 +149,23 @@ public class TransactionService {
         }
     }
 
-    private ExpenseType resolveExpenseType(TransactionRequestDto requestDto) {
-        if(requestDto.getType() == TransactionType.INCOME) {
+    private ExpenseType resolveExpenseType(TransactionType type) {
+        if (type == TransactionType.INCOME) {
+            return null;
+        }
+        return ExpenseType.VARIABLE;
+    }
+
+    private ExpenseType resolveExpenseType(Transaction transaction, TransactionType type) {
+        if(type == TransactionType.INCOME) {
             return null;
         }
 
-        return requestDto.getExpenseType();
+        if(transaction.getRecurringTransaction() != null) {
+            return ExpenseType.FIXED;
+        }
+
+        return ExpenseType.VARIABLE;
     }
 
     private void validateTransactionRequest(TransactionRequestDto requestDto) {
@@ -173,10 +183,6 @@ public class TransactionService {
 
         if(requestDto.getAmount() == null || requestDto.getAmount() <= 0) {
             throw new CustomException(ErrorCode.MINIMUM_AMOUNT);
-        }
-
-        if(requestDto.getType() == TransactionType.EXPENSE && requestDto.getExpenseType() == null) {
-            throw new CustomException(ErrorCode.CHOOSE_EXPENSE_TYPE);
         }
     }
 }
