@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.bank.entity;
 
+import chdaeseung.accountbook.global.exception.CustomException;
+import chdaeseung.accountbook.global.exception.ErrorCode;
 import chdaeseung.accountbook.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -16,7 +18,7 @@ public class BankAccount {
 
     private String bankName;
 
-    private String accountNumber;
+    private String accountName;
 
     private Long balance;
 
@@ -30,9 +32,9 @@ public class BankAccount {
     private User user;
 
     @Builder
-    public BankAccount(String bankName, String accountNumber, Long balance, BankAccountType type, boolean used, User user) {
+    public BankAccount(String bankName, String accountName, Long balance, BankAccountType type, boolean used, User user) {
         this.bankName = bankName;
-        this.accountNumber = accountNumber;
+        this.accountName = accountName;
         this.balance = balance;
         this.type = type;
         this.used = used;
@@ -41,9 +43,20 @@ public class BankAccount {
 
     public void update(String bankName, String accountNumber, Long balance, BankAccountType type, boolean used) {
         this.bankName = bankName;
-        this.accountNumber = accountNumber;
+        this.accountName = accountNumber;
         this.balance = balance;
         this.type = type;
         this.used = used;
+    }
+
+    public void increaseBalance(Long amount) {
+        this.balance += amount;
+    }
+
+    public void decreaseBalance(Long amount) {
+        if(this.balance < amount) {
+            throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE);
+        }
+        this.balance -= amount;
     }
 }

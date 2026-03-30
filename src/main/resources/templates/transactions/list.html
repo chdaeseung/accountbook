@@ -85,6 +85,7 @@
         <th>날짜</th>
         <th>카테고리</th>
         <th>유형</th>
+        <th>계좌</th>
         <th>금액</th>
         <th>메모</th>
     </tr>
@@ -108,6 +109,7 @@
                 (고정)
             </span>
         </td>
+        <td th:text="${transaction.bankAccountName != null ? transaction.bankAccountName : '-'}"></td>
         <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}">금액</td>
         <td>
             <a th:href="@{/transactions/{id}(id=${transaction.id})}"

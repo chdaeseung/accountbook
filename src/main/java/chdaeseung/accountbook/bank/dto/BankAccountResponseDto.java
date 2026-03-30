@@ -10,7 +10,7 @@ public class BankAccountResponseDto {
 
     private final String bankName;
 
-    private final String accountNumber;
+    private final String accountName;
 
     private final Long balance;
 
@@ -23,7 +23,7 @@ public class BankAccountResponseDto {
     public BankAccountResponseDto(BankAccount bankAccount) {
         this.id = bankAccount.getId();
         this.bankName = bankAccount.getBankName();
-        this.accountNumber = bankAccount.getAccountNumber();
+        this.accountName = bankAccount.getAccountName();
         this.balance = bankAccount.getBalance();
         this.type = bankAccount.getType();
         this.used = bankAccount.isUsed();

@@ -4,9 +4,13 @@ import chdaeseung.accountbook.category.dto.CategoryCreateDto;
 import chdaeseung.accountbook.category.dto.CategoryResponseDto;
 import chdaeseung.accountbook.category.service.CategoryService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
+import chdaeseung.accountbook.user.service.CustomUserDetails;
+import chdaeseung.accountbook.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,13 +20,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/categories")
 public class CategoryController {
+
     private final CategoryService categoryService;
+    private final UserService userService;
 
     @GetMapping
-    public String getCategories(HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String getCategories(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+        model.addAttribute("categories", categoryService.getCategories(userId));
         model.addAttribute("categoryForm", new CategoryCreateDto());
 
         return "/categories/list";
@@ -31,26 +37,25 @@ public class CategoryController {
     @PostMapping
     public String createCategory(@ModelAttribute("categoryForm") CategoryCreateDto createDto,
                                               BindingResult bindingResult,
-                                              HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-        System.out.println("createDto : " + createDto.getName() + " 작동 중");
+                                              @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
         if(bindingResult.hasErrors()) {
-            model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+            model.addAttribute("categories", categoryService.getCategories(userId));
             return "/categories/list";
         }
 
-        categoryService.createCategory(loginUser.getId(), createDto);
-        System.out.println("서비스 완료");
+        categoryService.createCategory(userId, createDto);
 
         return "redirect:/categories";
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteCategory(@PathVariable Long id, HttpSession session) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String deleteCategory(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
 
-        categoryService.deleteCategory(id, loginUser.getId());
+        categoryService.deleteCategory(id, userId);
+
         return "redirect:/categories";
     }
 }

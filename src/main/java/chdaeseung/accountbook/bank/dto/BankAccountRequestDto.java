@@ -15,7 +15,7 @@ public class BankAccountRequestDto {
     private String bankName;
 
     @NotNull(message = "계좌 이름을 입력해주세요.")
-    private String accountNumber;
+    private String accountName;
 
     @NotNull(message = "잔액을 입력해주세요.")
     private Long balance;
@@ -26,9 +26,9 @@ public class BankAccountRequestDto {
     @NotNull(message = "사용 여부를 선택해주세요.")
     private boolean used;
 
-    public BankAccountRequestDto(String bankName, String accountNumber, Long balance, BankAccountType type, boolean used) {
+    public BankAccountRequestDto(String bankName, String accountName, Long balance, BankAccountType type, boolean used) {
         this.bankName = bankName;
-        this.accountNumber = accountNumber;
+        this.accountName = accountName;
         this.balance = balance;
         this.type = type;
         this.used = used;

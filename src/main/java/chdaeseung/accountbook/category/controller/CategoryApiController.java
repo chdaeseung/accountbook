@@ -6,8 +6,10 @@ import chdaeseung.accountbook.category.service.CategoryService;
 import chdaeseung.accountbook.global.exception.CustomException;
 import chdaeseung.accountbook.global.exception.ErrorCode;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
+import chdaeseung.accountbook.user.service.CustomUserDetails;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,14 +23,8 @@ public class CategoryApiController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public CategoryResponseDto createCategory(@RequestBody CategoryCreateDto createDto, HttpSession session) {
+    public CategoryResponseDto createCategory(@RequestBody CategoryCreateDto createDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-
-        if(loginUser == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        return categoryService.createCategory(loginUser.getId(), createDto);
+        return categoryService.createCategory(userDetails.getUserId(), createDto);
     }
 }

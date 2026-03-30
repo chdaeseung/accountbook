@@ -5,9 +5,13 @@ import chdaeseung.accountbook.bank.dto.BankAccountResponseDto;
 import chdaeseung.accountbook.bank.entity.BankAccountType;
 import chdaeseung.accountbook.bank.service.BankAccountService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
+import chdaeseung.accountbook.user.service.CustomUserDetails;
+import chdaeseung.accountbook.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,12 +23,13 @@ import org.springframework.web.bind.annotation.*;
 public class BankAccountController {
 
     private final BankAccountService bankAccountService;
+    private final UserService userService;
 
     @GetMapping
-    public String list(HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        model.addAttribute("bankAccounts", bankAccountService.findAll(loginUser.getId()));
+        model.addAttribute("bankAccounts", bankAccountService.findAll(userId));
         return "/bank-account/list";
     }
 
@@ -37,37 +42,36 @@ public class BankAccountController {
     }
 
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute BankAccountRequestDto bankAccountRequestDto, BindingResult bindingResult, HttpSession session, Model model) {
+    public String create(@Valid @ModelAttribute BankAccountRequestDto bankAccountRequestDto, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         if (bindingResult.hasErrors()) {
-            System.out.println("검증 에러 발생");
-            System.out.println(bindingResult);
             model.addAttribute("types", BankAccountType.values());
             return "bank-account/create";
         }
 
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-        bankAccountService.create(loginUser.getId(), bankAccountRequestDto);
+        Long userId = userDetails.getUserId();
+
+        bankAccountService.create(userId, bankAccountRequestDto);
 
         return "redirect:/bank-account";
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String detail(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        model.addAttribute("bankAccount", bankAccountService.findById(loginUser.getId(), id));
+        model.addAttribute("bankAccount", bankAccountService.findById(userId, id));
         return "/bank-account/detail";
     }
 
     @GetMapping("/{id}/update")
-    public String update(@PathVariable Long id, HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String update(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        BankAccountResponseDto bankAccount = bankAccountService.findById(loginUser.getId(), id);
+        BankAccountResponseDto bankAccount = bankAccountService.findById(userId, id);
 
         BankAccountRequestDto requestDto = new BankAccountRequestDto(
                 bankAccount.getBankName(),
-                bankAccount.getAccountNumber(),
+                bankAccount.getAccountName(),
                 bankAccount.getBalance(),
                 bankAccount.getType(),
                 bankAccount.isUsed()
@@ -81,24 +85,25 @@ public class BankAccountController {
     }
 
     @PostMapping("/{id}/update")
-    public String update(@PathVariable Long id, @Valid @ModelAttribute BankAccountRequestDto requestDto, BindingResult bindingResult, HttpSession session, Model model) {
+    public String update(@PathVariable Long id, @Valid @ModelAttribute BankAccountRequestDto requestDto, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         if(bindingResult.hasErrors()) {
             model.addAttribute("bankAccountId", id);
             model.addAttribute("types", BankAccountType.values());
             return "/bank-account/update";
         }
 
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
-        bankAccountService.update(loginUser.getId(), id, requestDto);
+        Long userId = userDetails.getUserId();
+
+        bankAccountService.update(userId, id, requestDto);
 
         return "redirect:/bank-account/" + id;
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id, HttpSession session) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
 
-        bankAccountService.delete(loginUser.getId(), id);
+        bankAccountService.delete(userId, id);
 
         return "redirect:/bank-account";
     }

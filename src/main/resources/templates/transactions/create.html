@@ -37,6 +37,17 @@
         </div>
     </div>
 
+    <div>
+        <label>계좌 선택</label>
+        <select th:field="*{bankAccountId}">
+            <option value="">선택 안 함</option>
+            <option th:each="account : ${bankAccounts}"
+                    th:value="${account.id}"
+                    th:text="${account.accountName}">
+            </option>
+        </select>
+    </div>
+
     <div class="field-row">
         <label>유형</label>
         <select th:field="*{type}">

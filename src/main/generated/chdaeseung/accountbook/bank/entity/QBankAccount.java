@@ -22,7 +22,7 @@ public class QBankAccount extends EntityPathBase<BankAccount> {
 
     public static final QBankAccount bankAccount = new QBankAccount("bankAccount");
 
-    public final StringPath accountNumber = createString("accountNumber");
+    public final StringPath accountName = createString("accountName");
 
     public final NumberPath<Long> balance = createNumber("balance", Long.class);
 

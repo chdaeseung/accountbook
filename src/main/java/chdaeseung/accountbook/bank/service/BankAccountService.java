@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.bank.service;
 
+import chdaeseung.accountbook.bank.dto.BankAccountOptionDto;
 import chdaeseung.accountbook.bank.dto.BankAccountRequestDto;
 import chdaeseung.accountbook.bank.dto.BankAccountResponseDto;
 import chdaeseung.accountbook.bank.entity.BankAccount;
@@ -28,7 +29,7 @@ public class BankAccountService {
 
         BankAccount bankAccount = BankAccount.builder()
                 .bankName(requestDto.getBankName())
-                .accountNumber(requestDto.getAccountNumber())
+                .accountName(requestDto.getAccountName())
                 .balance(requestDto.getBalance())
                 .type(requestDto.getType())
                 .used(requestDto.isUsed())
@@ -59,7 +60,7 @@ public class BankAccountService {
 
         bankAccount.update(
                 requestDto.getBankName(),
-                requestDto.getAccountNumber(),
+                requestDto.getAccountName(),
                 requestDto.getBalance(),
                 requestDto.getType(),
                 requestDto.isUsed()
@@ -73,4 +74,15 @@ public class BankAccountService {
 
         bankAccountRepository.delete(bankAccount);
     }
+
+    @Transactional(readOnly = true)
+    public List<BankAccountOptionDto> getUsedOptions(Long userId) {
+        return bankAccountRepository.findAllByUserIdAndUsedTrueOrderByIdDesc(userId)
+                .stream()
+                .map(account -> new BankAccountOptionDto(
+                        account.getId(), account.getBankName() + " - " + account.getAccountName()
+                ))
+                .toList();
+    }
+
 }

@@ -26,4 +26,6 @@ public class TransactionRequestDto {
     private Long amount;
 
     private String memo;
+
+    private Long bankAccountId;
 }

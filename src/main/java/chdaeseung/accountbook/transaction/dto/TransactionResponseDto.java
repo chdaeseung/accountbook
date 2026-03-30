@@ -10,20 +10,24 @@ import java.time.LocalDate;
 
 @Getter
 public class TransactionResponseDto {
-    private final Long id;
+    private Long id;
 
-    private final TransactionType type;
+    private TransactionType type;
 
-    private final ExpenseType expenseType;
+    private ExpenseType expenseType;
 
-    private final Long amount;
+    private Long amount;
 
-    private final String category;
+    private String category;
 
-    private final String memo;
+    private String memo;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private final LocalDate date;
+    private LocalDate date;
+
+    private Long bankAccountId;
+
+    private String bankAccountName;
 
     public TransactionResponseDto(Transaction transaction) {
         this.id = transaction.getId();
@@ -33,5 +37,10 @@ public class TransactionResponseDto {
         this.category = transaction.getCategory().getName();
         this.memo = transaction.getMemo();
         this.date = transaction.getDate();
+
+        if(transaction.getBankAccount() != null) {
+            this.bankAccountId = transaction.getBankAccount().getId();
+            this.bankAccountName = transaction.getBankAccount().getBankName() + " - " + transaction.getBankAccount().getAccountName();
+        }
     }
 }

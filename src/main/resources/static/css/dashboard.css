@@ -13,8 +13,25 @@
     border: 2px;
 }
 
-.dashboard-container{
-    margin-right: 50px;
+.dashboard-main {
+    display: inline-flex;
+}
+
+.dashboard-container {
+    display: inline-block;
+}
+
+.dashboard-container-left {
+    display: inline-flex;
+}
+
+.dashboard-container-left-expense {
+    margin-top: 20px;
+    margin-left: 10px;
+}
+
+.dashboard-container-right {
+    margin-left: 30px;
 }
 
 .encrypted-password {
@@ -25,9 +42,4 @@
 .transaction {
     display: inline-block;
     border: 2px;
-}
-
-div {
-    display: inline-block;
-    margin-right: 20px;
 }

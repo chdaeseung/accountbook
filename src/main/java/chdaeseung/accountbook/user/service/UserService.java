@@ -9,14 +9,16 @@ import chdaeseung.accountbook.user.entity.User;
 import chdaeseung.accountbook.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public void signup(SignupRequestDto requestDto) {
         existsUser(requestDto);
@@ -42,10 +44,17 @@ public class UserService {
         User user = userRepository.findByUsername(requestDto.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.INCORRECT_ACCOUNT));
 
-        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INCORRECT_ACCOUNT);
-        }
+//        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+//            throw new CustomException(ErrorCode.INCORRECT_ACCOUNT);
+//        }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public Long getUserIdByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND))
+                .getId();
     }
 }

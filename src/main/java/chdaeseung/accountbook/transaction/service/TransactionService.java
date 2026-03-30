@@ -1,5 +1,7 @@
 package chdaeseung.accountbook.transaction.service;
 
+import chdaeseung.accountbook.bank.entity.BankAccount;
+import chdaeseung.accountbook.bank.repository.BankAccountRepository;
 import chdaeseung.accountbook.category.entity.Category;
 import chdaeseung.accountbook.category.repository.CategoryRepository;
 import chdaeseung.accountbook.global.exception.CustomException;
@@ -28,6 +30,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     public void createTransaction(TransactionRequestDto requestDto, Long userId) {
         validateTransactionRequest(requestDto);
@@ -35,14 +38,18 @@ public class TransactionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Category category = categoryRepository.findById(requestDto.getCategoryId())
+        Category category = categoryRepository.findByIdAndUserId(requestDto.getCategoryId(), userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        validateCategoryOwner(userId, category);
 
         ExpenseType expenseType = resolveExpenseType(requestDto.getType());
 
         String memo = requestDto.getMemo() == null ? "" : requestDto.getMemo().trim();
+
+        BankAccount bankAccount = getBankAccountOrNull(requestDto.getBankAccountId(), userId);
+
+        if(bankAccount != null) {
+            applyBalance(bankAccount, requestDto.getType(), requestDto.getAmount());
+        }
 
         Transaction transaction = Transaction.builder()
                 .type(requestDto.getType())
@@ -53,9 +60,35 @@ public class TransactionService {
                 .category(category)
                 .user(user)
                 .recurringTransaction(null)
+                .bankAccount(bankAccount)
                 .build();
 
         transactionRepository.save(transaction);
+    }
+
+    private BankAccount getBankAccountOrNull(Long bankAccountId, Long userId) {
+        if(bankAccountId == null) {
+            return null;
+        }
+
+        return bankAccountRepository.findByIdAndUserId(bankAccountId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+    }
+
+    private void applyBalance(BankAccount bankAccount, TransactionType type, Long amount) {
+        if(type == TransactionType.INCOME) {
+            bankAccount.increaseBalance(amount);
+        } else {
+            bankAccount.decreaseBalance(amount);
+        }
+    }
+
+    private void rollbackBalance(BankAccount bankAccount, TransactionType type, Long amount) {
+        if(type == TransactionType.INCOME) {
+            bankAccount.decreaseBalance(amount);
+        } else {
+            bankAccount.increaseBalance(amount);
+        }
     }
 
     public List<TransactionResponseDto> getTransactions(Long userId) {
@@ -70,16 +103,14 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public TransactionDetailResponseDto getTransactionDetail(Long userId, Long transactionId) {
-        Transaction transaction = transactionRepository.findByIdAndUserId(transactionId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
+        Transaction transaction = getOwnedTransaction(transactionId, userId);
 
         return TransactionDetailResponseDto.from(transaction);
     }
 
     @Transactional(readOnly = true)
     public TransactionRequestDto transactionUpdate(Long transactionId, Long userId) {
-        Transaction transaction = transactionRepository.findByIdAndUserId(transactionId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
+        Transaction transaction = getOwnedTransaction(transactionId, userId);
 
         TransactionRequestDto dto = new TransactionRequestDto();
         dto.setType(transaction.getType());
@@ -88,6 +119,10 @@ public class TransactionService {
         dto.setMemo(transaction.getMemo());
         dto.setDate(transaction.getDate());
 
+        if(transaction.getBankAccount() != null) {
+            dto.setBankAccountId(transaction.getBankAccount().getId());
+        }
+
         return dto;
     }
 
@@ -95,17 +130,25 @@ public class TransactionService {
     public void updateTransaction(Long transactionId, Long userId, TransactionRequestDto requestDto) {
         validateTransactionRequest(requestDto);
 
-        Transaction transaction = transactionRepository.findByIdAndUserId(transactionId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
+        Transaction transaction = getOwnedTransaction(transactionId, userId);
 
         Category category = categoryRepository.findByIdAndUserId(requestDto.getCategoryId(), userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        validateCategoryOwner(userId, category);
-
         ExpenseType expenseType = resolveExpenseType(transaction ,requestDto.getType());
 
         String memo = requestDto.getMemo() == null ? "" : requestDto.getMemo().trim();
+
+        BankAccount oldBankAccount = transaction.getBankAccount();
+        if(oldBankAccount != null) {
+            rollbackBalance(oldBankAccount, transaction.getType(), transaction.getAmount());
+        }
+
+        BankAccount newBankAccount = getBankAccountOrNull(requestDto.getBankAccountId(), userId);
+        if(requestDto.getBankAccountId() != null) {
+            applyBalance(newBankAccount, requestDto.getType(), requestDto.getAmount());
+        }
+
 
         transaction.update(
                 requestDto.getType(),
@@ -113,14 +156,23 @@ public class TransactionService {
                 requestDto.getAmount(),
                 category,
                 memo,
-                requestDto.getDate()
+                requestDto.getDate(),
+                newBankAccount
                 );
+    }
+
+    private Transaction getOwnedTransaction(Long transactionId, Long userId) {
+        return transactionRepository.findByIdAndUserId(transactionId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
     }
 
     @Transactional
     public void deleteTransaction(Long transactionId, Long userId) {
-        Transaction transaction = transactionRepository.findByIdAndUserId(transactionId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
+        Transaction transaction = getOwnedTransaction(transactionId, userId);
+
+        if(transaction.getBankAccount() != null) {
+            rollbackBalance(transaction.getBankAccount(), transaction.getType(), transaction.getAmount());
+        }
 
         transactionRepository.delete(transaction);
     }
@@ -134,12 +186,6 @@ public class TransactionService {
         Page<Transaction> transactionPage = transactionRepository.searchTransactions(userId, searchDto, pageable);
 
         return transactionPage.map(TransactionListResponseDto::from);
-    }
-
-    private void validateCategoryOwner(Long userId, Category category) {
-        if(!category.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
-        }
     }
 
     private void validateSearchDate(TransactionSearchDto searchDto) {

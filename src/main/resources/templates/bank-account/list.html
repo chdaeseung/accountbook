@@ -40,7 +40,7 @@
         <td th:text="${account.bankName}"></td>
         <td>
             <a th:href="@{/bank-account/{id}(id=${account.id})}"
-               th:text="${account.accountNumber}"></a>
+               th:text="${account.getAccountName}"></a>
         </td>
         <td th:text="${#numbers.formatInteger(account.balance, 3, 'COMMA')} + '원'"></td>
         <td th:text="${account.typeLabel}"></td>

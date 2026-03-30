@@ -33,6 +33,10 @@
         </td>
     </tr>
     <tr>
+        <th>계좌</th>
+        <td th:text="${transaction.bankAccountName != null ? transaction.bankAccountName : '선택 안 함'}"></td>
+    </tr>
+    <tr>
         <th>금액</th>
         <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}">금액</td>
     </tr>

@@ -1,13 +1,18 @@
 package chdaeseung.accountbook.transaction.controller;
 
+import chdaeseung.accountbook.bank.service.BankAccountService;
 import chdaeseung.accountbook.category.service.CategoryService;
 import chdaeseung.accountbook.transaction.dto.*;
 import chdaeseung.accountbook.transaction.service.TransactionService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
+import chdaeseung.accountbook.user.service.CustomUserDetails;
+import chdaeseung.accountbook.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,44 +25,48 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final CategoryService categoryService;
+    private final BankAccountService bankAccountService;
+    private final UserService userService;
 
     @GetMapping
-    public String getTransactionsList(@ModelAttribute TransactionSearchDto searchDto, HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String getTransactionsList(@ModelAttribute TransactionSearchDto searchDto, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        Page<TransactionListResponseDto> transactionPage = transactionService.getTransactions(loginUser.getId(), searchDto);
+        Page<TransactionListResponseDto> transactionPage = transactionService.getTransactions(userId, searchDto);
 
         model.addAttribute("transactionPage", transactionPage);
         model.addAttribute("searchDto", searchDto);
-        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+        model.addAttribute("categories", categoryService.getCategories(userId));
 
         return "/transactions/list";
     }
 
     @PostMapping
-    public String createTransaction(@ModelAttribute TransactionRequestDto transactionRequestDto, HttpSession session) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String createTransaction(@ModelAttribute TransactionRequestDto transactionRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
 
-        transactionService.createTransaction(transactionRequestDto, loginUser.getId());
+        transactionService.createTransaction(transactionRequestDto, userId);
 
         return "redirect:/dashboard";
     }
 
     @GetMapping("/create")
-    public String create(Model model, HttpSession session) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String create(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
 
         model.addAttribute("transactionRequestDto", new TransactionRequestDto());
-        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+        model.addAttribute("categories", categoryService.getCategories(userId));
+        model.addAttribute("bankAccounts", bankAccountService.getUsedOptions(userId));
+
 
         return "/transactions/create";
     }
 
     @GetMapping("/{transactionId}")
-    public String getTransactionDetail(@PathVariable Long transactionId, HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String getTransactionDetail(@PathVariable Long transactionId, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        TransactionDetailResponseDto transaction = transactionService.getTransactionDetail(loginUser.getId(), transactionId);
+        TransactionDetailResponseDto transaction = transactionService.getTransactionDetail(userId, transactionId);
 
         model.addAttribute("transaction", transaction);
 
@@ -65,32 +74,33 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}/update")
-    public String updateTransaction(@PathVariable Long id, HttpSession session, Model model) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String updateTransaction(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUserId();
 
-        TransactionRequestDto transaction = transactionService.transactionUpdate(id, loginUser.getId());
+        TransactionRequestDto transaction = transactionService.transactionUpdate(id, userId);
 
         model.addAttribute("transactionId", id);
         model.addAttribute("transaction", transaction);
-        model.addAttribute("categories", categoryService.getCategories(loginUser.getId()));
+        model.addAttribute("categories", categoryService.getCategories(userId));
+        model.addAttribute("bankAccounts", bankAccountService.getUsedOptions(userId));
 
         return "/transactions/update";
     }
 
     @PostMapping("/{id}/update")
-    public String updateTransaction(@PathVariable Long id, @ModelAttribute TransactionRequestDto transactionRequestDto, HttpSession session) {
-        LoginUserDto loginUser = (LoginUserDto) session.getAttribute("loginUser");
+    public String updateTransaction(@PathVariable Long id, @ModelAttribute TransactionRequestDto transactionRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
 
-        transactionService.updateTransaction(id, loginUser.getId(), transactionRequestDto);
+        transactionService.updateTransaction(id, userId, transactionRequestDto);
 
         return "redirect:/transactions/" + id;
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteTransaction(@PathVariable Long id, HttpSession session) {
-        LoginUserDto loginuser = (LoginUserDto) session.getAttribute("loginUser");
+    public String deleteTransaction(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
 
-        transactionService.deleteTransaction(id, loginuser.getId());
+        transactionService.deleteTransaction(id, userId);
 
         return "redirect:/dashboard";
     }

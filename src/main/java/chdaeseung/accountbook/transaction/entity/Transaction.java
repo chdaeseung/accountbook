@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.entity;
 
+import chdaeseung.accountbook.bank.entity.BankAccount;
 import chdaeseung.accountbook.category.entity.Category;
 import chdaeseung.accountbook.recurring.entity.RecurringTransaction;
 import chdaeseung.accountbook.user.entity.User;
@@ -43,8 +44,12 @@ public class Transaction {
     @JoinColumn(name = "recurring_transaction_id")
     private RecurringTransaction recurringTransaction;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_account_id")
+    private BankAccount bankAccount;
+
     @Builder
-    public Transaction(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, User user, RecurringTransaction recurringTransaction) {
+    public Transaction(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, User user, RecurringTransaction recurringTransaction, BankAccount bankAccount) {
         this.type = type;
         this.expenseType = expenseType;
         this.amount = amount;
@@ -53,14 +58,16 @@ public class Transaction {
         this.date = date;
         this.user = user;
         this.recurringTransaction = recurringTransaction;
+        this.bankAccount = bankAccount;
     }
 
-    public void update(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date) {
+    public void update(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, BankAccount bankAccount) {
         this.type = type;
         this.expenseType = expenseType;
         this.amount = amount;
         this.category = category;
         this.memo = memo;
         this.date = date;
+        this.bankAccount = bankAccount;
     }
 }

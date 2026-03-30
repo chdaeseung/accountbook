@@ -27,6 +27,10 @@ public class TransactionDetailResponseDto {
 
     private boolean recurring;
 
+    private Long bankAccountId;
+
+    private String bankAccountName;
+
     public static TransactionDetailResponseDto from(Transaction transaction) {
         return TransactionDetailResponseDto.builder()
                 .id(transaction.getId())
@@ -37,6 +41,8 @@ public class TransactionDetailResponseDto {
                 .amount(transaction.getAmount())
                 .memo(transaction.getMemo())
                 .recurring(transaction.getRecurringTransaction() != null)
+                .bankAccountId(transaction.getBankAccount() != null ? transaction.getBankAccount().getId() : null)
+                .bankAccountName(transaction.getBankAccount() != null ? transaction.getBankAccount().getBankName() + " - " + transaction.getBankAccount().getAccountName() : null)
                 .build();
     }
 }
