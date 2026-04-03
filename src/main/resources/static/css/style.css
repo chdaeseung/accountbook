@@ -8,17 +8,32 @@ h2, p {
 }
 
 nav {
-    list-style-type: none;
     margin: 0;
-    padding: 0;
+    padding: 0 20px;
     overflow: hidden;
     background-color: #333333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-left {
+    flex: 1;
+}
+
+.nav-center {
+    flex: 2;
     display: flex;
     justify-content: center;
 }
 
+.nav-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
 nav a {
-    float: left;
     display: block;
     color: white;
     text-align: center;
@@ -29,6 +44,25 @@ nav a {
 nav a:hover {
     background-color: #111111;
 }
+
+.nav-right form {
+    margin: 0;
+}
+
+.logout-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background-color: #dc2626;
+}
+
 
 .modal-backdrop {
     display: none;

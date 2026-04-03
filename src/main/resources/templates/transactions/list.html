@@ -53,6 +53,19 @@
         </select>
     </div>
 
+    <div>
+        <label>거래 은행</label>
+        <select name="bankAccountId">
+            <option value="">전체 계좌</option>
+            <option th:each="account : ${bankAccounts}"
+                    th:value="${account.id}"
+                    th:text="${account.accountName}"
+                    th:selected="${searchDto.bankAccountId != null and searchDto.bankAccountId == account.id}">
+            </option>
+        </select>
+    </div>
+
+
     <div id="searchExpenseTypeBox">
         <label>지출 성격</label>
         <select name="expenseType">
@@ -83,8 +96,8 @@
     <thead>
     <tr>
         <th>날짜</th>
-        <th>카테고리</th>
         <th>유형</th>
+        <th>카테고리</th>
         <th>계좌</th>
         <th>금액</th>
         <th>메모</th>
@@ -97,7 +110,6 @@
 
     <tr th:each="transaction : ${transactionPage.content}">
         <td th:text="${transaction.date}">날짜</td>
-        <td th:text="${transaction.categoryName}">카테고리</td>
         <td>
             <span th:style="${transaction.type.name() == 'INCOME' ? 'color:blue;' : 'color:red;'}"
                   th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">
@@ -109,6 +121,7 @@
                 (고정)
             </span>
         </td>
+        <td th:text="${transaction.categoryName}">카테고리</td>
         <td th:text="${transaction.bankAccountName != null ? transaction.bankAccountName : '-'}"></td>
         <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}">금액</td>
         <td>

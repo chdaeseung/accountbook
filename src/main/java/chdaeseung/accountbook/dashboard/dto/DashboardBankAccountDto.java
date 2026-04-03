@@ -10,7 +10,7 @@ public class DashboardBankAccountDto {
 
     private String bankName;
 
-    private String accountNumber;
+    private String accountName;
 
     private Long balance;
 

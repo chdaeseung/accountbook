@@ -37,6 +37,7 @@ public class TransactionController {
         model.addAttribute("transactionPage", transactionPage);
         model.addAttribute("searchDto", searchDto);
         model.addAttribute("categories", categoryService.getCategories(userId));
+        model.addAttribute("bankAccounts", bankAccountService.getUsedOptions(userId));
 
         return "/transactions/list";
     }

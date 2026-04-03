@@ -17,6 +17,8 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
+import static chdaeseung.accountbook.transaction.entity.QTransaction.transaction;
+
 @Repository
 @RequiredArgsConstructor
 public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
@@ -37,7 +39,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         endDateLoe(searchDto.getEndDate(), transaction),
                         categoryIdEq(searchDto.getCategoryId(), category),
                         typeEq(searchDto.getType(), transaction),
-                        expenseTypeEq(searchDto.getExpenseType(), transaction)
+                        expenseTypeEq(searchDto.getExpenseType(), transaction),
+                        eqBankAccountId(searchDto.getBankAccountId())
                 )
                 .orderBy(transaction.date.desc(), transaction.id.desc())
                 .offset(pageable.getOffset())
@@ -54,7 +57,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         endDateLoe(searchDto.getEndDate(), transaction),
                         categoryIdEq(searchDto.getCategoryId(), category),
                         typeEq(searchDto.getType(), transaction),
-                        expenseTypeEq(searchDto.getExpenseType(), transaction)
+                        expenseTypeEq(searchDto.getExpenseType(), transaction),
+                        eqBankAccountId(searchDto.getBankAccountId())
                 )
                 .fetchOne();
 
@@ -83,5 +87,9 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     private BooleanExpression expenseTypeEq(ExpenseType expenseType, QTransaction transaction) {
         return expenseType != null ? transaction.expenseType.eq(expenseType) : null;
+    }
+
+    private BooleanExpression eqBankAccountId(Long bankAccountId) {
+        return bankAccountId != null ? transaction.bankAccount.id.eq(bankAccountId) : null;
     }
 }

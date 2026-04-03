@@ -27,7 +27,9 @@ public enum ErrorCode {
     INSERT_DATE(HttpStatus.CONFLICT, "날짜를 입력해주세요."),
     CHOOSE_TYPE(HttpStatus.CONFLICT, "거래 유형을 선택해주세요."),
     CHOOSE_EXPENSE_TYPE(HttpStatus.CONFLICT, "지출 유형을 선택해주세요."),
+    CHOOSE_ACCOUNT(HttpStatus.CONFLICT, "계좌를 선택해주세요"),
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌를 찾을 수 없습니다."),
+    SAME_ACCOUNT_ID(HttpStatus.CONFLICT, "출금 계좌와 입금 계좌가 같습니다."),
     INSUFFICIENT_BALANCE(HttpStatus.CONFLICT, "잔액이 부족합니다.");
 
 

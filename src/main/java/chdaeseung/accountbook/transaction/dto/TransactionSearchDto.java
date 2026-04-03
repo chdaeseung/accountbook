@@ -23,6 +23,8 @@ public class TransactionSearchDto {
 
     private ExpenseType expenseType;
 
+    private Long bankAccountId;
+
     private int page = 0;
 
     private int size = 10;
