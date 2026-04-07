@@ -4,9 +4,7 @@ import chdaeseung.accountbook.bank.entity.BankAccount;
 import chdaeseung.accountbook.bank.entity.BankAccountType;
 import chdaeseung.accountbook.bank.repository.BankAccountRepository;
 import chdaeseung.accountbook.category.dto.CategoryExpenseDto;
-import chdaeseung.accountbook.dashboard.dto.DashboardBankAccountDto;
-import chdaeseung.accountbook.dashboard.dto.DashboardRecurringTransactionDto;
-import chdaeseung.accountbook.dashboard.dto.DashboardResponseDto;
+import chdaeseung.accountbook.dashboard.dto.*;
 import chdaeseung.accountbook.recurring.entity.RecurringTransaction;
 import chdaeseung.accountbook.recurring.repository.RecurringTransactionRepository;
 import chdaeseung.accountbook.transaction.dto.TransactionResponseDto;
@@ -18,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +30,43 @@ public class DashboardService {
     private final TransactionRepository transactionRepository;
     private final RecurringTransactionRepository recurringTransactionRepository;
     private final BankAccountRepository bankAccountRepository;
+
+    public List<AssetTrendPointDto> getAssetTrend(Long userId, int year, int month) {
+        List<DailyCashFlowDto> dailyCashFlows = transactionRepository.findDailyCashFlow(userId, year, month);
+
+        Map<Integer, Long> cashFlowMap = dailyCashFlows.stream()
+                .collect(Collectors.toMap(
+                        DailyCashFlowDto::getDay,
+                        DailyCashFlowDto::getAmountFlow
+                ));
+        YearMonth targetMonth = YearMonth.of(year, month);
+        int endDay = targetMonth.lengthOfMonth();
+
+        LocalDate today = LocalDate.now();
+        YearMonth curMonth = YearMonth.from(today);
+
+        long totalAmount = 0L;
+        List<AssetTrendPointDto> result = new ArrayList<>();
+
+        for(int day = 1; day <= endDay; day++) {
+            LocalDate curDate = targetMonth.atDay(day);
+
+            if(targetMonth.isAfter(curMonth)) {
+                result.add(new AssetTrendPointDto(day + "일", null));
+                continue;
+            }
+
+            if(targetMonth.equals(curMonth) && curDate.isAfter(today)) {
+                result.add(new AssetTrendPointDto(day + "일", null));
+                continue;
+            }
+
+            totalAmount += cashFlowMap.getOrDefault(day, 0L);
+            result.add(new AssetTrendPointDto(day + "일", totalAmount));
+        }
+
+        return result;
+    }
 
     public DashboardResponseDto getDashboard(Long userId) {
         LocalDate today = LocalDate.now();

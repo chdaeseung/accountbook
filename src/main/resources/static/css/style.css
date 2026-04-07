@@ -1,10 +1,16 @@
 body {
     margin: 0;
     padding: 0;
+    background-color: #f3f4f6;
 }
 
-h2, p {
-    margin: 10px;
+.page-container {
+    width: 1280px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    min-height: 100vh;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
 }
 
 nav {
@@ -63,7 +69,6 @@ nav a:hover {
     background-color: #dc2626;
 }
 
-
 .modal-backdrop {
     display: none;
     position: fixed;
@@ -112,21 +117,6 @@ nav a:hover {
     color: red;
     font-size: 14px;
     margin-top: 8px;
-}
-
-.memo-link {
-    a:visited {
-        color: black;
-        text-decoration: none;
-    }
-    a:link {
-        color: black;
-        text-decoration: none;
-    }
-    a:hover {
-        color: deepskyblue;
-        text-decoration: none;
-    }
 }
 
 .error-box {

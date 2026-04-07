@@ -1,4 +1,4 @@
-package chdaeseung.accountbook.config;
+package chdaeseung.accountbook.global.config;
 
 import chdaeseung.accountbook.global.interceptor.LoginInterceptor;
 import org.springframework.context.annotation.Configuration;

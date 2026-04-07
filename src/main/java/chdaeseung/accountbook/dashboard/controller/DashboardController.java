@@ -5,6 +5,8 @@ import chdaeseung.accountbook.dashboard.service.DashboardService;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
 import chdaeseung.accountbook.user.service.CustomUserDetails;
 import chdaeseung.accountbook.user.service.UserService;
+import chdaeseung.accountbook.weather.repository.WeatherRepository;
+import chdaeseung.accountbook.weather.service.WeatherQueryService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,16 +39,25 @@ public class DashboardController {
         int targetMonth = month != null ? month : today.getMonthValue();
 
         DashboardResponseDto dashboard = dashboardService.getDashboard(userId, targetYear, targetMonth);
+
+        YearMonth curYearMonth = YearMonth.from(today);
+        YearMonth targetYearMonth = YearMonth.of(targetYear, targetMonth);
+
+        YearMonth prevYearMonth = targetYearMonth.minusMonths(1);
+        YearMonth nextYearMonth = targetYearMonth.plusMonths(1);
+
+        boolean isCurMonth = targetYearMonth.equals(curYearMonth);
+        int displayDay = isCurMonth ? today.getDayOfMonth() : 0;
+        boolean existNextMonth = targetYearMonth.isBefore(curYearMonth);
+
         model.addAttribute("dashboard", dashboard);
-
-        LocalDate curMonth = LocalDate.of(targetYear, targetMonth, 1);
-        LocalDate prevMonth = curMonth.minusMonths(1);
-        LocalDate nextMonth = curMonth.plusMonths(1);
-
-        model.addAttribute("prevYear", prevMonth.getYear());
-        model.addAttribute("prevMonth", prevMonth.getMonthValue());
-        model.addAttribute("nextYear", nextMonth.getYear());
-        model.addAttribute("nextMonth", nextMonth.getMonthValue());
+        model.addAttribute("prevYear", prevYearMonth.getYear());
+        model.addAttribute("prevMonth", prevYearMonth.getMonthValue());
+        model.addAttribute("nextYear", nextYearMonth.getYear());
+        model.addAttribute("nextMonth", nextYearMonth.getMonthValue());
+        model.addAttribute("displayDay", displayDay);
+        model.addAttribute("existNextMonth", existNextMonth);
+        model.addAttribute("assetTrend", dashboardService.getAssetTrend(userDetails.getUserId(), targetYear, targetMonth));
 
         return "dashboard/dashboard";
     }

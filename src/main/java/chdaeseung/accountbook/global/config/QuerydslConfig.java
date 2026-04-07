@@ -1,4 +1,4 @@
-package chdaeseung.accountbook.config;
+package chdaeseung.accountbook.global.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

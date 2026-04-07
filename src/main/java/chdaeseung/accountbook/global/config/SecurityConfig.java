@@ -1,4 +1,4 @@
-package chdaeseung.accountbook.config;
+package chdaeseung.accountbook.global.config;
 
 import chdaeseung.accountbook.user.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;

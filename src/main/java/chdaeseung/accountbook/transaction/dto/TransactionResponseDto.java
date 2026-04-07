@@ -40,7 +40,7 @@ public class TransactionResponseDto {
 
         if(transaction.getBankAccount() != null) {
             this.bankAccountId = transaction.getBankAccount().getId();
-            this.bankAccountName = transaction.getBankAccount().getBankName() + " - " + transaction.getBankAccount().getAccountName();
+            this.bankAccountName = transaction.getBankAccount().getAccountName();
         }
     }
 }

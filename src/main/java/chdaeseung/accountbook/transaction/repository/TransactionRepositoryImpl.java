@@ -1,12 +1,16 @@
 package chdaeseung.accountbook.transaction.repository;
 
 import chdaeseung.accountbook.category.entity.QCategory;
+import chdaeseung.accountbook.dashboard.dto.DailyCashFlowDto;
 import chdaeseung.accountbook.transaction.dto.TransactionSearchDto;
 import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.QTransaction;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +28,35 @@ import static chdaeseung.accountbook.transaction.entity.QTransaction.transaction
 public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<DailyCashFlowDto> findDailyCashFlow(Long userId, int year, int month) {
+        QTransaction transaction = QTransaction.transaction;
+
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        NumberExpression<Long> signedAmount = new CaseBuilder()
+                .when(transaction.type.eq(TransactionType.INCOME))
+                .then(transaction.amount)
+                .otherwise(transaction.amount.multiply(-1));
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DailyCashFlowDto.class,
+                        transaction.date.dayOfMonth(),
+                        signedAmount.sum()
+                ))
+                .from(transaction)
+                .where(
+                        transaction.user.id.eq(userId),
+                        transaction.date.goe(startDate),
+                        transaction.date.loe(endDate)
+                )
+                .groupBy(transaction.date.dayOfMonth())
+                .orderBy(transaction.date.dayOfMonth().asc())
+                .fetch();
+    }
 
     @Override
     public Page<Transaction> searchTransactions(Long userId, TransactionSearchDto searchDto, Pageable pageable) {
