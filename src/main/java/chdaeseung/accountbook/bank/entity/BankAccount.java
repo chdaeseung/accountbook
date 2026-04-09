@@ -25,28 +25,29 @@ public class BankAccount {
     @Enumerated(EnumType.STRING)
     private BankAccountType type;
 
-    private boolean used;
+    private boolean negativeBalanceAllowed;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+
     @Builder
-    public BankAccount(String bankName, String accountName, Long balance, BankAccountType type, boolean used, User user) {
+    public BankAccount(String bankName, String accountName, Long balance, BankAccountType type, boolean negativeBalanceAllowed, User user) {
         this.bankName = bankName;
         this.accountName = accountName;
         this.balance = balance;
         this.type = type;
-        this.used = used;
+        this.negativeBalanceAllowed = negativeBalanceAllowed;
         this.user = user;
     }
 
-    public void update(String bankName, String accountNumber, Long balance, BankAccountType type, boolean used) {
+    public void update(String bankName, String accountName, Long balance, BankAccountType type, boolean negativeBalanceAllowed) {
         this.bankName = bankName;
-        this.accountName = accountNumber;
+        this.accountName = accountName;
         this.balance = balance;
         this.type = type;
-        this.used = used;
+        this.negativeBalanceAllowed = negativeBalanceAllowed;
     }
 
     public void increaseBalance(Long amount) {
@@ -54,9 +55,11 @@ public class BankAccount {
     }
 
     public void decreaseBalance(Long amount) {
-        if(this.balance < amount) {
+        long newBalance = this.balance - amount;
+
+        if(!this.negativeBalanceAllowed && newBalance < 0) {
             throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE);
         }
-        this.balance -= amount;
+        this.balance = newBalance;
     }
 }

@@ -11,9 +11,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long> 
 
     Optional<BankAccount> findByIdAndUserId(Long id, Long userId);
 
-    List<BankAccount> findTop5ByUserIdAndUsedTrueOrderByBalanceDesc(Long userId);
+    List<BankAccount> findTop5ByUserIdOrderByBalanceDesc(Long userId);
 
-    List<BankAccount> findAllByUserIdAndUsedTrue(Long userId);
-
-    List<BankAccount> findAllByUserIdAndUsedTrueOrderByIdDesc(Long userId);
+    List<BankAccount> findAllByUserId(Long userId);
 }

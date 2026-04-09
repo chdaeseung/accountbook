@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.global.exception;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -7,10 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
-    public String handleCustomException(CustomException e, Model model) {
-        model.addAttribute("message", e.getMessage());
-
-        return "error/error";
+    public ResponseEntity<String> handleCustomException(CustomException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

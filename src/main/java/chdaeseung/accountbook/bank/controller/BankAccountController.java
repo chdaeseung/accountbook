@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.bank.controller;
 
+import chdaeseung.accountbook.bank.dto.AssetDashboardResponseDto;
 import chdaeseung.accountbook.bank.dto.BankAccountRequestDto;
 import chdaeseung.accountbook.bank.dto.BankAccountResponseDto;
 import chdaeseung.accountbook.bank.entity.BankAccountType;
@@ -26,10 +27,21 @@ public class BankAccountController {
     private final UserService userService;
 
     @GetMapping
-    public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String list(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
-        model.addAttribute("bankAccounts", bankAccountService.findAll(userId));
+        AssetDashboardResponseDto response = bankAccountService.getAssetDashboard(userId, year, month);
+
+        model.addAttribute("totalAsset", response.getTotalAsset());
+        model.addAttribute("monthAssetIncrease", response.getMonthAssetIncrease());
+        model.addAttribute("monthAssetDecrease", response.getMonthAssetDecrease());
+
+        model.addAttribute("negativeAllowedCount", response.getNegativeAllowedCount());
+        model.addAttribute("largestAccountName", response.getLargestAccountName());
+
+        model.addAttribute("bankAccounts", response.getBankAccounts());
+        model.addAttribute("assetTrend", response.getAssetTrend());
+        model.addAttribute("assetShare", response.getAssetShare());
         return "/bank-account/list";
     }
 
@@ -74,7 +86,7 @@ public class BankAccountController {
                 bankAccount.getAccountName(),
                 bankAccount.getBalance(),
                 bankAccount.getType(),
-                bankAccount.isUsed()
+                bankAccount.isNegativeBalanceAllowed()
         );
 
         model.addAttribute("bankAccountId", id);

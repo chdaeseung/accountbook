@@ -25,6 +25,8 @@ public class TransactionSearchDto {
 
     private Long bankAccountId;
 
+    private String memoKeyword;
+
     private int page = 0;
 
     private int size = 10;

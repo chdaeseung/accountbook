@@ -69,40 +69,6 @@ nav a:hover {
     background-color: #dc2626;
 }
 
-.modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 1000;
-}
-
-.modal-backdrop.show {
-    display: block;
-}
-
-.modal-box {
-    width: 360px;
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 120px auto;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
-
-.modal-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 16px;
-}
-
-.modal-actions {
-    margin-top: 16px;
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-}
-
 .field-row {
     margin-bottom: 12px;
 }
@@ -113,11 +79,6 @@ nav a:hover {
     align-items: center;
 }
 
-.error-text {
-    color: red;
-    font-size: 14px;
-    margin-top: 8px;
-}
 
 .error-box {
     background-color: #ffe6e6;

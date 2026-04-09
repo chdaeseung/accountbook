@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -73,7 +74,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         categoryIdEq(searchDto.getCategoryId(), category),
                         typeEq(searchDto.getType(), transaction),
                         expenseTypeEq(searchDto.getExpenseType(), transaction),
-                        eqBankAccountId(searchDto.getBankAccountId())
+                        eqBankAccountId(searchDto.getBankAccountId()),
+                        memoContains(searchDto.getMemoKeyword())
                 )
                 .orderBy(transaction.date.desc(), transaction.id.desc())
                 .offset(pageable.getOffset())
@@ -124,5 +126,9 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     private BooleanExpression eqBankAccountId(Long bankAccountId) {
         return bankAccountId != null ? transaction.bankAccount.id.eq(bankAccountId) : null;
+    }
+
+    private BooleanExpression memoContains(String memoKeyword) {
+        return StringUtils.hasText(memoKeyword) ? transaction.memo.contains(memoKeyword) : null;
     }
 }

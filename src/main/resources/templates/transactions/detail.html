@@ -1,67 +1,92 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>거래 상세</title>
+    <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/nav.css}">
+    <link rel="stylesheet" th:href="@{/css/transaction-detail.css}">
 </head>
 <body>
-<nav>
-    <a th:href="@{/dashboard}">대시보드</a>
-    <a th:href="@{/transactions}">거래내역</a>
-    <a th:href="@{/categories}">카테고리 관리</a>
-    <a th:href="@{/recurring}">정기 지출 관리</a>
-    <a th:href="@{/bank-account}">계좌 관리</a>
-</nav>
-<table border="1">
-    <tr>
-        <th>날짜</th>
-        <td th:text="${transaction.date}">날짜</td>
-    </tr>
-    <tr>
-        <th>카테고리</th>
-        <td th:text="${transaction.categoryName}">카테고리</td>
-    </tr>
-    <tr>
-        <th>유형</th>
-        <td>
-            <span th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">지출</span>
-            <span th:if="${transaction.type.name() == 'EXPENSE' and transaction.expenseType != null}"
-                  th:text="${transaction.expenseType.name() == 'FIXED' ? '(고정지출)' : '(변동지출)'}">
-                (고정지출)
-            </span>
-        </td>
-    </tr>
-    <tr>
-        <th>계좌</th>
-        <td th:text="${transaction.bankAccountName != null ? transaction.bankAccountName : '선택 안 함'}"></td>
-    </tr>
-    <tr>
-        <th>금액</th>
-        <td th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')}">금액</td>
-    </tr>
-    <tr>
-        <th>메모</th>
-        <td th:href="@{/transactions/{id}(id=${transaction.id})}"
-           th:text="${transaction.memo != null and !#strings.isEmpty(transaction.memo) ? transaction.memo : '(내용 없음)'}">
-            메모
-        </td>
-    </tr>
-</table>
+<div class="page-container">
+    <div th:replace="~{fragments/nav :: navbar}"></div>
 
-<div style="margin-top: 20px;">
-    <a th:href="@{/transactions/{id}/update(id=${transaction.id})}">수정</a>
+    <div class="detail-page-wrap">
+        <section class="page-header">
+            <div>
+                <h1 class="page-title">거래 상세</h1>
+                <p class="page-description">거래내역의 상세 정보를 확인할 수 있습니다.</p>
+            </div>
+        </section>
 
-    <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}"
-          method="post"
-          style="display:inline;"
-          onsubmit="return confirm('정말 삭제하시겠습니까?');">
-        <button type="submit">삭제</button>
-    </form>
+        <section class="content-card detail-card">
+            <div class="card-header">
+                <h2>거래 정보</h2>
+            </div>
 
-    <a th:href="@{/transactions}">목록으로</a>
-    <a th:href="@{/dashboard}">대시보드로</a>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <p class="detail-label">거래일</p>
+                    <p class="detail-value" th:text="${transaction.date}">2026-04-08</p>
+                </div>
+
+                <div class="detail-item">
+                    <p class="detail-label">유형</p>
+                    <div class="detail-value">
+                        <span class="type-badge"
+                            th:classappend="${transaction.type.name() == 'INCOME'} ? ' income' : ' expense'"
+                            th:text="${transaction.type.name() == 'INCOME' ? '수입' : '지출'}">
+                            지출
+                        </span>
+
+                        <span class="recurring-badge"
+                              th:if="${transaction.recurring}">
+                                정기
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <p class="detail-label">카테고리</p>
+                    <p class="detail-value" th:text="${transaction.categoryName}">식비</p>
+                </div>
+
+                <div class="detail-item">
+                    <p class="detail-label">계좌 / 금액</p>
+
+                    <div class="account-amount-box">
+                        <span class="account-name"
+                            th:text="${transaction.bankAccountName != null ? transaction.bankAccountName : '미지정'}">
+                            국민은행
+                        </span>
+
+                        <span class="amount"
+                            th:text="${#numbers.formatInteger(transaction.amount, 3, 'COMMA')} + '원'">
+                            15,000원
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-item full-width">
+                    <p class="detail-label">메모</p>
+                    <div class="memo-box"
+                         th:text="${#strings.isEmpty(transaction.memo) ? '내용 없음' : transaction.memo}">
+                        점심 식사
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                <a th:href="@{/transactions}" class="secondary-btn">목록으로</a>
+                <a th:href="@{/transactions/{id}/update(id=${transaction.id})}" class="primary-btn">수정</a>
+                <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}"
+                      method="post"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit" class="danger-btn">삭제</button>
+                </form>
+            </div>
+        </section>
+    </div>
 </div>
-
 </body>
 </html>

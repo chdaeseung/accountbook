@@ -30,9 +30,9 @@ public class QBankAccount extends EntityPathBase<BankAccount> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<BankAccountType> type = createEnum("type", BankAccountType.class);
+    public final BooleanPath negativeBalanceAllowed = createBoolean("negativeBalanceAllowed");
 
-    public final BooleanPath used = createBoolean("used");
+    public final EnumPath<BankAccountType> type = createEnum("type", BankAccountType.class);
 
     public final chdaeseung.accountbook.user.entity.QUser user;
 

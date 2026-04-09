@@ -32,7 +32,20 @@ public class TransactionController {
     public String getTransactionsList(@ModelAttribute TransactionSearchDto searchDto, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
+        if(searchDto.getPage() < 0) {
+           searchDto.setPage(0);
+        }
+
+        if(searchDto.getSize() <= 0) {
+            searchDto.setSize(10);
+        }
+
         Page<TransactionListResponseDto> transactionPage = transactionService.getTransactions(userId, searchDto);
+
+        if(transactionPage.getTotalPages() > 0 && searchDto.getPage() >= transactionPage.getTotalPages()) {
+            searchDto.setPage(transactionPage.getTotalPages() - 1);
+            transactionPage = transactionService.getTransactions(userId, searchDto);
+        }
 
         model.addAttribute("transactionPage", transactionPage);
         model.addAttribute("searchDto", searchDto);
@@ -43,12 +56,18 @@ public class TransactionController {
     }
 
     @PostMapping
-    public String createTransaction(@ModelAttribute TransactionRequestDto transactionRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String createTransaction(@Valid @ModelAttribute TransactionRequestDto transactionRequestDto, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
+
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.getCategories(userId));
+            model.addAttribute("bankAccounts", bankAccountService.getUsedOptions(userId));
+            return "transactions/create";
+        }
 
         transactionService.createTransaction(transactionRequestDto, userId);
 
-        return "redirect:/dashboard";
+        return "redirect:/transactions";
     }
 
     @GetMapping("/create")
@@ -81,7 +100,7 @@ public class TransactionController {
         TransactionRequestDto transaction = transactionService.transactionUpdate(id, userId);
 
         model.addAttribute("transactionId", id);
-        model.addAttribute("transaction", transaction);
+        model.addAttribute("transactionRequestDto", transaction);
         model.addAttribute("categories", categoryService.getCategories(userId));
         model.addAttribute("bankAccounts", bankAccountService.getUsedOptions(userId));
 
@@ -89,8 +108,15 @@ public class TransactionController {
     }
 
     @PostMapping("/{id}/update")
-    public String updateTransaction(@PathVariable Long id, @ModelAttribute TransactionRequestDto transactionRequestDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String updateTransaction(@PathVariable Long id, @Valid @ModelAttribute TransactionRequestDto transactionRequestDto, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
+
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("transactionId", id);
+            model.addAttribute("categories", categoryService.getCategories(userId));
+            model.addAttribute("bankAccounts", bankAccountService.getUsedOptions(userId));
+            return "transactions/update";
+        }
 
         transactionService.updateTransaction(id, userId, transactionRequestDto);
 

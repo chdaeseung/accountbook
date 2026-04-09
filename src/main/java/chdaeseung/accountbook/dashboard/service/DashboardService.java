@@ -137,22 +137,21 @@ public class DashboardService {
                 .mapToLong(RecurringTransaction::getAmount)
                 .sum();
 
-        List<BankAccount> usedBankAccount = bankAccountRepository.findAllByUserIdAndUsedTrue(userId);
+        List<BankAccount> usedBankAccount = bankAccountRepository.findAllByUserId(userId);
 
         long totalBankAmount = usedBankAccount.stream()
                 .mapToLong(BankAccount::getBalance)
                 .sum();
 
         List<DashboardBankAccountDto> bankAccounts = bankAccountRepository
-                .findTop5ByUserIdAndUsedTrueOrderByBalanceDesc(userId)
+                .findTop5ByUserIdOrderByBalanceDesc(userId)
                 .stream()
                 .map(bankAccount -> new DashboardBankAccountDto(
                         bankAccount.getId(),
                         bankAccount.getBankName(),
                         bankAccount.getAccountName(),
                         bankAccount.getBalance(),
-                        getBankAccountTypeLabel(bankAccount.getType()),
-                        bankAccount.isUsed()
+                        getBankAccountTypeLabel(bankAccount.getType())
                 ))
                 .toList();
 

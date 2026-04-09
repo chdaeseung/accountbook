@@ -23,14 +23,13 @@ public class BankAccountRequestDto {
     @NotNull(message = "계좌 종류를 선택해주세요.")
     private BankAccountType type;
 
-    @NotNull(message = "사용 여부를 선택해주세요.")
-    private boolean used;
+    private boolean negativeBalanceAllowed;
 
-    public BankAccountRequestDto(String bankName, String accountName, Long balance, BankAccountType type, boolean used) {
+    public BankAccountRequestDto(String bankName, String accountName, Long balance, BankAccountType type, boolean negativeBalanceAllowed) {
         this.bankName = bankName;
         this.accountName = accountName;
         this.balance = balance;
         this.type = type;
-        this.used = used;
+        this.negativeBalanceAllowed = negativeBalanceAllowed;
     }
 }

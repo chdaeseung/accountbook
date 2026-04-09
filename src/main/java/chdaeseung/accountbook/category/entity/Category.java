@@ -24,6 +24,7 @@ public class Category {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder
     public Category(String name, User user) {
         this.name = name;
         this.user = user;

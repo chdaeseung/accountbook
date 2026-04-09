@@ -16,9 +16,9 @@ public class BankAccountResponseDto {
 
     private final BankAccountType type;
 
-    private final boolean used;
-
     private final String typeLabel;
+
+    private final boolean negativeBalanceAllowed;
 
     public BankAccountResponseDto(BankAccount bankAccount) {
         this.id = bankAccount.getId();
@@ -26,8 +26,8 @@ public class BankAccountResponseDto {
         this.accountName = bankAccount.getAccountName();
         this.balance = bankAccount.getBalance();
         this.type = bankAccount.getType();
-        this.used = bankAccount.isUsed();
         this.typeLabel = getTypeLabel(bankAccount.getType());
+        this.negativeBalanceAllowed = bankAccount.isNegativeBalanceAllowed();
     }
 
     private String getTypeLabel(BankAccountType type) {

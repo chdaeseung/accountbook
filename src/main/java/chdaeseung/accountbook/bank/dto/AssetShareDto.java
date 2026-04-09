@@ -1,18 +1,18 @@
-package chdaeseung.accountbook.dashboard.dto;
+package chdaeseung.accountbook.bank.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class DashboardBankAccountDto {
+public class AssetShareDto {
     private Long id;
-
-    private String bankName;
 
     private String accountName;
 
     private Long balance;
 
-    private String typeLabel;
+    private int percent;
+
+    private String color;
 }
