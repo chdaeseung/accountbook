@@ -6,5 +6,4 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RecurringTransactionRepositoryCustom {
-    List<RecurringTransaction> findAllToGenerate(LocalDate today);
 }

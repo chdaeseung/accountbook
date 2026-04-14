@@ -71,7 +71,7 @@ public class BankAccountController {
     public String detail(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
-        model.addAttribute("bankAccount", bankAccountService.findById(userId, id));
+        model.addAttribute("bankAccount", bankAccountService.getDetail(userId, id));
         return "/bank-account/detail";
     }
 

@@ -1,6 +1,10 @@
 package chdaeseung.accountbook.recurring.controller;
 
+import chdaeseung.accountbook.bank.entity.BankAccount;
+import chdaeseung.accountbook.bank.service.BankAccountService;
 import chdaeseung.accountbook.category.service.CategoryService;
+import chdaeseung.accountbook.global.exception.CustomException;
+import chdaeseung.accountbook.recurring.dto.RecurringDashboardResponseDto;
 import chdaeseung.accountbook.recurring.dto.RecurringTransactionCreateDto;
 import chdaeseung.accountbook.recurring.dto.RecurringTransactionResponseDto;
 import chdaeseung.accountbook.recurring.entity.RecurringTransaction;
@@ -27,15 +31,16 @@ public class RecurringTransactionController {
     private final RecurringTransactionService recurringTransactionService;
     private final CategoryService categoryService;
     private final RecurringSchedulerService recurringSchedulerService;
-    private final UserService userService;
+    private final BankAccountService bankAccountService;
 
     @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
-        List<RecurringTransactionResponseDto> recurringTransactions = recurringTransactionService.getRecurringTransactions(userId);
+        RecurringDashboardResponseDto response = recurringTransactionService.getRecurringDashboard(userId);
 
-        model.addAttribute("recurringTransactions", recurringTransactions);
+        model.addAttribute("monthlyTotalAmount", response.getMonthlyTotalAmount());
+        model.addAttribute("recurringTransactions", response.getRecurringTransactions());
 
         return "/recurring/list";
     }
@@ -45,18 +50,23 @@ public class RecurringTransactionController {
         Long userId = userDetails.getUserId();
 
         model.addAttribute("recurringTransactionCreateDto", new RecurringTransactionCreateDto());
-        model.addAttribute("categories", categoryService.getCategories(userId));
+        model.addAttribute("bankAccounts", bankAccountService.getBankAccountsForSelect(userId));
 
         return "/recurring/create";
     }
 
     @PostMapping
-    public String create(@ModelAttribute RecurringTransactionCreateDto recurringTransactionCreateDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String create(@ModelAttribute RecurringTransactionCreateDto recurringTransactionCreateDto, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
-
-        recurringTransactionService.createRecurringTransaction(userId, recurringTransactionCreateDto);
-
-        return "redirect:/recurring";
+        try {
+            recurringTransactionService.createRecurringTransaction(userId, recurringTransactionCreateDto);
+            return "redirect:/recurring";
+        } catch (CustomException e) {
+            model.addAttribute("recurringTransactionCreateDto", recurringTransactionCreateDto);
+            model.addAttribute("bankAccounts", bankAccountService.getBankAccountsForSelect(userId));
+            model.addAttribute("errorMessage", e.getMessage());
+            return "/recurring/create";
+        }
     }
 
     @GetMapping("/{id}")
@@ -74,22 +84,29 @@ public class RecurringTransactionController {
     public String update(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
-        RecurringTransactionCreateDto createDto = recurringTransactionService.getRecurringTransactionUpdate(userId, id);
+        RecurringTransactionCreateDto dto = recurringTransactionService.getRecurringTransactionUpdate(userId, id);
 
-        model.addAttribute("recurringTransactionCreateDto", createDto);
-        model.addAttribute("categories", categoryService.getCategories(userId));
-        model.addAttribute("recurringTransactionId", id);
+        model.addAttribute("recurringTransactionCreateDto", dto);
+        model.addAttribute("bankAccounts", bankAccountService.getBankAccountsForSelect(userId));
+        model.addAttribute("recurringId", id);
 
         return "/recurring/update";
     }
 
     @PostMapping("/{id}/update")
-    public String update(@PathVariable Long id, @ModelAttribute RecurringTransactionCreateDto createDto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String update(@PathVariable Long id, @ModelAttribute RecurringTransactionCreateDto createDto, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
-        recurringTransactionService.updateRecurringTransaction(userId, id, createDto);
-
-        return "redirect:/recurring";
+        try {
+            recurringTransactionService.updateRecurringTransaction(userId, id, createDto);
+            return "redirect:/recurring/" + id;
+        } catch (CustomException e) {
+            model.addAttribute("recurringTransactionCreateDto", createDto);
+            model.addAttribute("bankAccounts", bankAccountService.getBankAccountsForSelect(userId));
+            model.addAttribute("recurringId", id);
+            model.addAttribute("errorMessage", e.getMessage());
+            return "/recurring/update";
+        }
     }
 
     @PostMapping("/{id}/delete")

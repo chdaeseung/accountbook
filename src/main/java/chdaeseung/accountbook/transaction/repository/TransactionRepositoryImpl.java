@@ -1,6 +1,8 @@
 package chdaeseung.accountbook.transaction.repository;
 
+import chdaeseung.accountbook.bank.dto.MonthlyExpenseRawDto;
 import chdaeseung.accountbook.category.entity.QCategory;
+import chdaeseung.accountbook.dashboard.dto.AssetTrendPointDto;
 import chdaeseung.accountbook.dashboard.dto.DailyCashFlowDto;
 import chdaeseung.accountbook.transaction.dto.TransactionSearchDto;
 import chdaeseung.accountbook.transaction.entity.ExpenseType;
@@ -98,6 +100,51 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total == null ? 0L : total);
+    }
+
+    @Override
+    public List<MonthlyExpenseRawDto> getMonthlyExpenseByBankAccount(Long userId, Long bankAccountId) {
+        QTransaction transaction = QTransaction.transaction;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        MonthlyExpenseRawDto.class,
+                        transaction.date.year(),
+                        transaction.date.month(),
+                        transaction.amount.sum()
+                ))
+                .from(transaction)
+                .where(
+                        transaction.user.id.eq(userId),
+                        transaction.bankAccount.id.eq(bankAccountId)
+                )
+                .groupBy(transaction.date.year(), transaction.date.month())
+                .orderBy(transaction.date.year().asc(), transaction.date.month().asc())
+                .fetch();
+    }
+
+    @Override
+    public List<AssetTrendPointDto> getExpenseTopCategoriesByBankAccount(Long userId, Long bankAccountId) {
+        QTransaction transaction = QTransaction.transaction;
+        QCategory category = QCategory.category;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        AssetTrendPointDto.class,
+                        category.name,
+                        transaction.amount.sum()
+                ))
+                .from(transaction)
+                .join(transaction.category, category)
+                .where(
+                        transaction.user.id.eq(userId),
+                        transaction.bankAccount.id.eq(bankAccountId),
+                        transaction.type.eq(TransactionType.EXPENSE)
+                )
+                .groupBy(category.id, category.name)
+                .orderBy(transaction.amount.sum().desc())
+                .limit(3)
+                .fetch();
     }
 
     private BooleanExpression userIdEq(Long userId, QTransaction transaction) {

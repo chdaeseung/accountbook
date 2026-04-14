@@ -16,24 +16,4 @@ import java.util.List;
 public class RecurringTransactionRepositoryImpl implements RecurringTransactionRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    @Override
-    public List<RecurringTransaction> findAllToGenerate(LocalDate today) {
-        QRecurringTransaction recurringTransaction = QRecurringTransaction.recurringTransaction;
-        QCategory category = QCategory.category;
-        QUser user = QUser.user;
-
-        return queryFactory
-                .selectFrom(recurringTransaction)
-                .join(recurringTransaction.category, category).fetchJoin()
-                .join(recurringTransaction.user, user).fetchJoin()
-                .where(
-                        recurringTransaction.isDone.isTrue(),
-                        recurringTransaction.dayOfMonth.eq(today.getDayOfMonth()),
-                        recurringTransaction.startDate.loe(today),
-                        recurringTransaction.endDate.isNull()
-                                .or(recurringTransaction.endDate.goe(today))
-                )
-                .fetch();
-    }
 }

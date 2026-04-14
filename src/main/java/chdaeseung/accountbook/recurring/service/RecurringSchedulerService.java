@@ -26,9 +26,7 @@ public class RecurringSchedulerService {
     public void generateTodayRecurringTransactions() {
         LocalDate today = LocalDate.now();
 
-        deactivateExpiredRecurringTransactions(today);
-
-        List<RecurringTransaction> recurringTransactions = recurringTransactionRepository.findAllToGenerate(today);
+        List<RecurringTransaction> recurringTransactions = recurringTransactionRepository.findAllByDayOfMonth(today.getDayOfMonth());
 
         log.info("오늘 자동 생성 대상 개수 : {}", recurringTransactions.size());
 
@@ -42,27 +40,20 @@ public class RecurringSchedulerService {
 
             Transaction transaction = Transaction.builder()
                     .recurringTransaction(recurringTransaction)
+                    .bankAccount(recurringTransaction.getBankAccount())
                     .amount(recurringTransaction.getAmount())
                     .memo(recurringTransaction.getMemo())
                     .type(TransactionType.EXPENSE)
                     .expenseType(ExpenseType.FIXED)
-                    .category(recurringTransaction.getCategory())
                     .user(recurringTransaction.getUser())
                     .date(today)
                     .build();
 
+            recurringTransaction.getBankAccount().decreaseBalance(recurringTransaction.getAmount());
+
             transactionRepository.save(transaction);
 
             log.info("자동 생성 완료 : recurringId = {}, date = {}", recurringTransaction.getId(), today);
-        }
-    }
-
-    private void deactivateExpiredRecurringTransactions(LocalDate today) {
-        List<RecurringTransaction> expiredTransactions = recurringTransactionRepository.findAllByIsDoneTrueAndEndDateBefore(today);
-
-        for(RecurringTransaction recurringTransaction : expiredTransactions) {
-            recurringTransaction.deactivate();
-            log.info("정기 지출 중지 : recurringId = {}", recurringTransaction.getId());
         }
     }
 }

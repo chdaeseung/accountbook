@@ -24,19 +24,13 @@ public class QRecurringTransaction extends EntityPathBase<RecurringTransaction> 
 
     public final NumberPath<Long> amount = createNumber("amount", Long.class);
 
-    public final chdaeseung.accountbook.category.entity.QCategory category;
+    public final chdaeseung.accountbook.bank.entity.QBankAccount bankAccount;
 
     public final NumberPath<Integer> dayOfMonth = createNumber("dayOfMonth", Integer.class);
 
-    public final DatePath<java.time.LocalDate> endDate = createDate("endDate", java.time.LocalDate.class);
-
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final BooleanPath isDone = createBoolean("isDone");
-
     public final StringPath memo = createString("memo");
-
-    public final DatePath<java.time.LocalDate> startDate = createDate("startDate", java.time.LocalDate.class);
 
     public final chdaeseung.accountbook.user.entity.QUser user;
 
@@ -58,7 +52,7 @@ public class QRecurringTransaction extends EntityPathBase<RecurringTransaction> 
 
     public QRecurringTransaction(Class<? extends RecurringTransaction> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.category = inits.isInitialized("category") ? new chdaeseung.accountbook.category.entity.QCategory(forProperty("category"), inits.get("category")) : null;
+        this.bankAccount = inits.isInitialized("bankAccount") ? new chdaeseung.accountbook.bank.entity.QBankAccount(forProperty("bankAccount"), inits.get("bankAccount")) : null;
         this.user = inits.isInitialized("user") ? new chdaeseung.accountbook.user.entity.QUser(forProperty("user")) : null;
     }
 

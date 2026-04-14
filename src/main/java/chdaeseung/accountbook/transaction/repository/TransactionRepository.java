@@ -1,5 +1,6 @@
 package chdaeseung.accountbook.transaction.repository;
 
+import chdaeseung.accountbook.dashboard.dto.AssetTrendPointDto;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,10 +16,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     Optional<Transaction> findById(Long id);
 
     boolean existsByCategoryId(Long categoryId);
-    
-    List<Transaction> findTop5ByUserIdOrderByDateDescIdDesc(Long userId);
-
-    List<Transaction> findAllByUserId(Long userId);
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 

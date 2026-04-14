@@ -12,7 +12,7 @@ public interface RecurringTransactionRepository extends JpaRepository<RecurringT
 
     Optional<RecurringTransaction> findByIdAndUserId(Long id, Long userId);
 
-    List<RecurringTransaction> findAllByIsDoneTrueAndEndDateBefore(LocalDate today);
+    List<RecurringTransaction> findAllByDayOfMonth(Integer dayOfMonth);
 
-    List<RecurringTransaction> findAllByUserIdAndIsDoneTrueOrderByDayOfMonthAsc(Long userId);
+    List<RecurringTransaction> findAllByUserId(Long userId);
 }

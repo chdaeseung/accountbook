@@ -6,6 +6,7 @@ import chdaeseung.accountbook.bank.repository.BankAccountRepository;
 import chdaeseung.accountbook.dashboard.dto.AssetTrendPointDto;
 import chdaeseung.accountbook.global.exception.CustomException;
 import chdaeseung.accountbook.global.exception.ErrorCode;
+import chdaeseung.accountbook.transaction.repository.TransactionRepository;
 import chdaeseung.accountbook.user.entity.User;
 import chdaeseung.accountbook.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class BankAccountService {
 
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     public Long create(Long userId, BankAccountRequestDto requestDto) {
@@ -223,5 +225,29 @@ public class BankAccountService {
         ));
 
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public BankAccountDetailResponseDto getDetail(Long userId, Long bankAccountId) {
+        BankAccount bankAccount = bankAccountRepository.findByIdAndUserId(bankAccountId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        List<MonthlyExpenseRawDto> rawDtos = transactionRepository.getMonthlyExpenseByBankAccount(userId, bankAccountId);
+
+        List<AssetTrendPointDto> monthlyExpenses = rawDtos.stream()
+                .map(dto -> new AssetTrendPointDto(dto.getMonth() + "월", dto.getAmount()))
+                .toList();
+
+        List<AssetTrendPointDto> expenseTopCategories =
+                transactionRepository.getExpenseTopCategoriesByBankAccount(userId, bankAccountId);
+
+        return BankAccountDetailResponseDto.of(bankAccount, monthlyExpenses, expenseTopCategories);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BankAccountSelectDto> getBankAccountsForSelect(Long userId) {
+        return bankAccountRepository.findAllByUserId(userId).stream()
+                .map(BankAccountSelectDto::from)
+                .toList();
     }
 }

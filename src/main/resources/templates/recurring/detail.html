@@ -2,72 +2,79 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>정기 지출 상세</title>
+    <title>정기지출 상세</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/recurring-detail.css}">
 </head>
 <body>
-<nav>
-    <a th:href="@{/dashboard}">대시보드</a>
-    <a th:href="@{/transactions}">거래내역</a>
-    <a th:href="@{/categories}">카테고리 관리</a>
-    <a th:href="@{/recurring}">정기 지출 관리</a>
-    <a th:href="@{/bank-account}">계좌 관리</a>
-</nav>
-<table border="1">
-    <tr>
-        <th>메모</th>
-        <td th:text="${recurringTransaction.memo}">월세</td>
-    </tr>
-    <tr>
-        <th>카테고리</th>
-        <td th:text="${recurringTransaction.categoryName}">주거</td>
-    </tr>
-    <tr>
-        <th>금액</th>
-        <td th:text="${#numbers.formatInteger(recurringTransaction.amount, 3, 'COMMA')}">500,000</td>
-    </tr>
-    <tr>
-        <th>결제일</th>
-        <td th:text="${'매월 ' + recurringTransaction.dayOfMonth + '일'}">매월 1일</td>
-    </tr>
-    <tr>
-        <th>시작일</th>
-        <td th:text="${recurringTransaction.startDate}">2026-03-01</td>
-    </tr>
-    <tr>
-        <th>종료일</th>
-        <td th:text="${recurringTransaction.endDate != null ? recurringTransaction.endDate : '-'}">-</td>
-    </tr>
-    <tr>
-        <th>사용 여부</th>
-        <td>
-            <span th:text="${recurringTransaction.isDone ? '사용중' : '중지'}">사용중</span>
+<div class="page-shell">
+    <div class="page-container">
 
-            <form th:action="@{/recurring/{id}/toggle(id=${recurringTransaction.id})}"
-                  method="post"
-                  style="display:inline; margin-left:10px;">
-                <button type="submit"
-                        th:text="${recurringTransaction.isDone ? '변경' : '변경'}">
-                    중지로 변경
-                </button>
-            </form>
-        </td>
-    </tr>
-</table>
+        <div th:replace="~{fragments/nav :: navbar}"></div>
 
-<div style="margin-top: 20px;">
-    <a th:href="@{/recurring/{id}/update(id=${recurringTransaction.id})}">수정</a>
+        <div class="detail-page">
+            <div class="detail-card">
 
-    <form th:action="@{/recurring/{id}/delete(id=${recurringTransaction.id})}"
-          method="post"
-          style="display:inline;"
-          onsubmit="return confirm('정말 삭제하시겠습니까?');">
-        <button type="submit">삭제</button>
-    </form>
+                <div class="detail-header">
+                    <div>
+                        <h2 th:text="${#strings.isEmpty(recurringTransaction.memo) ? '기타' : recurringTransaction.memo}">정기지출명</h2>
+                        <p>정기지출 상세 정보</p>
+                    </div>
 
-    <a th:href="@{/recurring}">목록으로</a>
-    <a th:href="@{/dashboard}">대시보드로</a>
+                    <div class="detail-header-actions">
+                        <a th:href="@{/recurring}" class="btn btn-secondary">목록</a>
+                        <a th:href="@{/recurring/{id}/update(id=${recurringTransaction.id})}" class="btn btn-primary">수정</a>
+                    </div>
+                </div>
+
+                <div class="highlight-card">
+                    <span class="highlight-label">매월 결제 금액</span>
+                    <strong class="highlight-value"
+                            th:text="${#numbers.formatInteger(recurringTransaction.amount, 3, 'COMMA')} + '원'">
+                        0원
+                    </strong>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">구독 서비스</span>
+                        <strong class="info-value"
+                                th:text="${#strings.isEmpty(recurringTransaction.memo) ? '기타' : recurringTransaction.memo}">
+                            기타
+                        </strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">결제일</span>
+                        <strong class="info-value"
+                                th:text="|매월 ${recurringTransaction.dayOfMonth}일|">
+                            매월 1일
+                        </strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">연결 계좌</span>
+                        <strong class="info-value account-with-bank">
+                            <span class="account-name"
+                                th:text="${recurringTransaction.bankAccountName}">계좌명</span>
+                            <span class="bank-name"
+                                th:text="${recurringTransaction.bankName}">은행명</span>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="detail-footer">
+                    <form th:action="@{/recurring/{id}/delete(id=${recurringTransaction.id})}"
+                          method="post"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
 </div>
-
 </body>
 </html>

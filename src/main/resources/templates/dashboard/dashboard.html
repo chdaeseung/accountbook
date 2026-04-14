@@ -31,7 +31,7 @@
                 <a th:href="@{/dashboard(year=${prevYear}, month=${prevMonth})}" class="month-move-btn">이전 달</a>
 
                 <strong class="month-title"
-                        th:text="${displayDay == 0 ? dashboard.year + '년 ' + dashboard.month + '월 00일' : dashboard.year + '년 ' + dashboard.month + '월 ' + displayDay + '일'}">
+                        th:text="${displayDay == 0 ? dashboard.year + '년 ' + dashboard.month + '월' : dashboard.year + '년 ' + dashboard.month + '월 ' + displayDay + '일'}">
                 </strong>
 
                 <a th:if="${existNextMonth}"
@@ -142,7 +142,7 @@
                         </thead>
                         <tbody>
                         <tr th:if="${#lists.isEmpty(dashboard.bankAccounts)}">
-                            <td colspan="3">등록된 사용중 계좌가 없습니다.</td>
+                            <td colspan="3">등록된 계좌가 없습니다.</td>
                         </tr>
 
                         <tr th:each="account, stat : ${dashboard.bankAccounts}"
@@ -165,7 +165,7 @@
 
                 <div class="dashboard-card right-summary-card bottom-row-card">
                     <div class="card-header">
-                        <h2>사용중인 정기지출</h2>
+                        <h2>정기지출</h2>
                         <a th:href="@{/recurring}" class="btn-more">목록</a>
                     </div>
 
@@ -180,11 +180,12 @@
                             <th class="col-service">구독 서비스</th>
                             <th class="col-date">결제일</th>
                             <th class="col-amount">금액</th>
+                            <th class="col-account">계좌</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:if="${#lists.isEmpty(dashboard.recurringTransactions)}">
-                            <td colspan="3">사용중인 정기지출이 없습니다.</td>
+                            <td colspan="4">등록된 정기지출이 없습니다.</td>
                         </tr>
 
                         <tr th:each="recurring, stat : ${dashboard.recurringTransactions}"
@@ -194,12 +195,13 @@
                             <td th:text="${#strings.isEmpty(recurring.memo) ? '기타' : recurring.memo}"></td>
                             <td th:text="|매월 ${recurring.dayOfMonth}일|"></td>
                             <td th:text="${#numbers.formatInteger(recurring.amount, 3, 'COMMA')} + '원'"></td>
+                            <td th:text="${recurring.bankAccountName}"></td>
                         </tr>
 
                         <tr th:if="${dashboard.recurringTransactions != null and dashboard.recurringTransactions.size() > 4}"
                             th:onclick="|location.href='@{/recurring}'|"
                             class="clickable-row more-row">
-                            <td colspan="3">...</td>
+                            <td colspan="4">...</td>
                         </tr>
                         </tbody>
                     </table>

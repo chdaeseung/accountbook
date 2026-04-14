@@ -1,20 +1,18 @@
-package chdaeseung.accountbook.dashboard.dto;
+package chdaeseung.accountbook.recurring.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDate;
-
 @Getter
 @AllArgsConstructor
-public class DashboardRecurringTransactionDto {
+public class RecurringTransactionListResponseDto {
     private Long id;
 
     private String memo;
 
-    private Long amount;
-
     private Integer dayOfMonth;
+
+    private Long amount;
 
     private String bankAccountName;
 }

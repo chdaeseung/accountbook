@@ -26,8 +26,6 @@ public class DashboardResponseDto {
 
     private Long monthlyRecurringExpenseTotal;
 
-    private List<CategoryExpenseDto> top3CategoriesExpense;
-
     private Long totalBankAmount;
 
     private List<DashboardBankAccountDto> bankAccounts;

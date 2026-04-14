@@ -2,61 +2,74 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>정기 지출 목록</title>
+    <title>정기 지출 관리</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/recurring.css}">
 </head>
 <body>
-<nav>
-    <a th:href="@{/dashboard}">대시보드</a>
-    <a th:href="@{/transactions}">거래내역</a>
-    <a th:href="@{/categories}">카테고리 관리</a>
-    <a th:href="@{/recurring}">정기 지출 관리</a>
-    <a th:href="@{/bank-account}">계좌 관리</a>
-</nav>
-<div>
-    <a th:href="@{/recurring/create}">정기 지출 추가</a>
-    <a th:href="@{/dashboard}">대시보드로</a>
+<div class="page-shell">
+    <div class="page-container">
+
+        <div th:replace="~{fragments/nav :: navbar}"></div>
+
+        <div class="dashboard-top-bar">
+            <div class="dashboard-summary-inline">
+                <div class="summary-item expense">
+                    <span class="summary-label">이번 달 정기 지출 합계</span>
+                    <span class="summary-value"
+                          th:text="${#numbers.formatInteger(monthlyTotalAmount, 3, 'COMMA')} + '원'"></span>
+                </div>
+            </div>
+
+            <div class="dashboard-top-right">
+                <a th:href="@{/recurring/create}" class="btn-create-recurring">정기지출 추가</a>
+            </div>
+        </div>
+
+        <div class="recurring-main">
+            <div class="dashboard-card large-card recurring-list-card">
+                <div class="card-header">
+                    <h2>정기 지출 목록</h2>
+                    <span class="recurring-count"
+                          th:text="'총 ' + ${recurringTransactions.size()} + '건'"></span>
+                </div>
+
+                <table class="dashboard-table recurring-list-table">
+                    <colgroup>
+                        <col class="col-service">
+                        <col class="col-date">
+                        <col class="col-amount">
+                        <col class="col-account">
+                    </colgroup>
+
+                    <thead>
+                    <tr>
+                        <th>구독 서비스</th>
+                        <th>결제일</th>
+                        <th>금액</th>
+                        <th>계좌</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(recurringTransactions)}">
+                        <td colspan="4">등록된 정기지출이 없습니다.</td>
+                    </tr>
+
+                    <tr th:each="recurring : ${recurringTransactions}"
+                        th:onclick="|location.href='@{/recurring/{id}(id=${recurring.id})}'|"
+                        class="clickable-row">
+                        <td th:text="${#strings.isEmpty(recurring.memo) ? '기타' : recurring.memo}"></td>
+                        <td th:text="|매월 ${recurring.dayOfMonth}일|"></td>
+                        <td th:text="${#numbers.formatInteger(recurring.amount, 3, 'COMMA')} + '원'"></td>
+                        <td th:text="${recurring.bankAccountName}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
 </div>
-<form th:action="@{/recurring/generate}" method="post" style="margin-bottom: 20px;">
-    <button type="submit">자동 거래 생성 테스트</button>
-</form>
-
-<table border="1">
-    <thead>
-    <tr>
-        <th>카테고리</th>
-        <th>금액</th>
-        <th>매월</th>
-        <th>시작일</th>
-        <th>종료일</th>
-        <th>사용 여부</th>
-        <th>메모</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(recurringTransactions)}">
-        <td colspan="8">등록된 정기 지출이 없습니다.</td>
-    </tr>
-
-    <tr th:each="item : ${recurringTransactions}">
-        <td th:text="${item.categoryName}">카테고리</td>
-        <td th:text="${#numbers.formatInteger(item.amount, 3, 'COMMA')}">금액</td>
-        <td th:text="${item.dayOfMonth + '일'}">주기</td>
-        <td th:text="${item.startDate}">시작일</td>
-        <td th:text="${item.endDate != null ? item.endDate : '-'}">종료일</td>
-        <td th:style="${item.isDone ? 'color:blue;' : 'color:gray;'}"
-            th:text="${item.isDone ? '사용중' : '중지'}">
-            사용중
-        </td>
-        <td>
-            <a th:href="@{/recurring/{id}(id=${item.id})}"
-               th:text="${item.memo != null and !#strings.isEmpty(item.memo) ? item.memo : '(내용 없음)'}">
-                메모
-            </a>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
 </body>
 </html>

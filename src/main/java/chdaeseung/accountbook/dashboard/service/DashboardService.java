@@ -99,47 +99,24 @@ public class DashboardService {
                 .map(TransactionResponseDto::new)
                 .toList();
 
-        LocalDate today = LocalDate.now();
+        List<RecurringTransaction> recurringTransactions = recurringTransactionRepository.findAllByUserIdOrderByDayOfMonthAsc(userId);
 
-        List<RecurringTransaction> doneRecurringTransactions = recurringTransactionRepository.findAllByUserIdAndIsDoneTrueOrderByDayOfMonthAsc(userId);
-
-        List<RecurringTransaction> validRecurringTransactions = doneRecurringTransactions.stream()
-                .filter(recurringTransaction ->
-                        recurringTransaction.getEndDate() == null || !recurringTransaction.getEndDate().isBefore(today))
-                .toList();
-
-        List<DashboardRecurringTransactionDto> recurringTransactionDtos = validRecurringTransactions.stream()
+        List<DashboardRecurringTransactionDto> recurringTransactionDtos = recurringTransactions.stream()
                 .map(recurringTransaction -> new DashboardRecurringTransactionDto(
                         recurringTransaction.getId(),
                         recurringTransaction.getMemo(),
                         recurringTransaction.getAmount(),
                         recurringTransaction.getDayOfMonth(),
-                        recurringTransaction.getStartDate(),
-                        recurringTransaction.getCategory().getName(),
-                        recurringTransaction.isDone()
+                        recurringTransaction.getBankAccount().getAccountName()
                 )).toList();
 
-        List<CategoryExpenseDto> top3ExpenseCategories = monthlyTransactions.stream()
-                .filter(transaction -> transaction.getType() == TransactionType.EXPENSE)
-                .filter(transaction -> transaction.getCategory() != null)
-                .collect(Collectors.groupingBy(
-                        transaction -> transaction.getCategory().getName(),
-                        Collectors.summingLong(Transaction::getAmount)
-                ))
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .limit(3)
-                .map(entry -> new CategoryExpenseDto(entry.getKey(), entry.getValue()))
-                .toList();
-
-        long monthlyRecurringExpenseTotal = validRecurringTransactions.stream()
+        long monthlyRecurringExpenseTotal = recurringTransactions.stream()
                 .mapToLong(RecurringTransaction::getAmount)
                 .sum();
 
-        List<BankAccount> usedBankAccount = bankAccountRepository.findAllByUserId(userId);
+        List<BankAccount> bankAccountList = bankAccountRepository.findAllByUserId(userId);
 
-        long totalBankAmount = usedBankAccount.stream()
+        long totalBankAmount = bankAccountList.stream()
                 .mapToLong(BankAccount::getBalance)
                 .sum();
 
@@ -155,7 +132,7 @@ public class DashboardService {
                 ))
                 .toList();
 
-        return new DashboardResponseDto(year, month, totalIncome, totalExpense, balance, recentTransactions, recurringTransactionDtos, monthlyRecurringExpenseTotal, top3ExpenseCategories, totalBankAmount, bankAccounts);
+        return new DashboardResponseDto(year, month, totalIncome, totalExpense, balance, recentTransactions, recurringTransactionDtos, monthlyRecurringExpenseTotal, totalBankAmount, bankAccounts);
     }
 
     private String getBankAccountTypeLabel(BankAccountType type) {

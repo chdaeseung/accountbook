@@ -16,26 +16,23 @@ public class RecurringTransactionResponseDto {
 
     private Long amount;
 
-    private String categoryName;
-
     private Integer dayOfMonth;
 
-    private LocalDate startDate;
+    private Long bankAccountId;
 
-    private LocalDate endDate;
+    private String bankAccountName;
 
-    private boolean isDone;
+    private String bankName;
 
     public static RecurringTransactionResponseDto from(RecurringTransaction recurringTransaction) {
         return RecurringTransactionResponseDto.builder()
                 .id(recurringTransaction.getId())
                 .memo(recurringTransaction.getMemo())
                 .amount(recurringTransaction.getAmount())
-                .categoryName(recurringTransaction.getCategory().getName())
                 .dayOfMonth(recurringTransaction.getDayOfMonth())
-                .startDate(recurringTransaction.getStartDate())
-                .endDate(recurringTransaction.getEndDate())
-                .isDone(recurringTransaction.isDone())
+                .bankAccountId(recurringTransaction.getBankAccount().getId())
+                .bankAccountName(recurringTransaction.getBankAccount().getAccountName())
+                .bankName(recurringTransaction.getBankAccount().getBankName())
                 .build();
     }
 }

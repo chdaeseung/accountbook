@@ -35,19 +35,22 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String signup(@Valid SignupRequestDto requestDto, BindingResult bindingResult) {
+    public String signup(@Valid @ModelAttribute SignupRequestDto requestDto, BindingResult bindingResult, Model model) {
+        if(!requestDto.getPassword().equals(requestDto.getPasswordConfirm())) {
+            bindingResult.rejectValue("passwordConfirm", "mismatch", "비밀번호가 일치하지 않습니다.");
+        }
+
         if(bindingResult.hasErrors()) {
             return "/users/signup";
         }
 
         try {
             userService.signup(requestDto);
+            return "redirect:/users/login";
         } catch (IllegalArgumentException e) {
-            bindingResult.reject("signupFail", e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
             return "users/signup";
         }
-
-        return "redirect:/users/login";
     }
 
     @GetMapping("/login")
