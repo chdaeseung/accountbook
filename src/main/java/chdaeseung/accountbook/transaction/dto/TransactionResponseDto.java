@@ -29,14 +29,27 @@ public class TransactionResponseDto {
 
     private String bankAccountName;
 
+    private boolean transfer;
+
+    private boolean recurring;
+
     public TransactionResponseDto(Transaction transaction) {
         this.id = transaction.getId();
         this.type = transaction.getType();
         this.expenseType = transaction.getExpenseType();
         this.amount = transaction.getAmount();
-        this.category = transaction.getCategory().getName();
         this.memo = transaction.getMemo();
         this.date = transaction.getDate();
+        this.transfer = transaction.isTransfer();
+        this.recurring = transaction.getRecurringTransaction() != null;
+
+        if(transaction.isTransfer()) {
+            this.category = "이체";
+        } else if(transaction.getCategory() != null) {
+            this.category = transaction.getCategory().getName();
+        } else {
+            this.category = "-";
+        }
 
         if(transaction.getBankAccount() != null) {
             this.bankAccountId = transaction.getBankAccount().getId();

@@ -27,15 +27,27 @@ public class TransactionDetailResponseDto {
 
     private boolean recurring;
 
+    private boolean transfer;
+
     private Long bankAccountId;
 
     private String bankAccountName;
 
     public static TransactionDetailResponseDto from(Transaction transaction) {
+        String categoryName;
+
+        if(transaction.isTransfer()) {
+            categoryName = "이체";
+        } else if(transaction.getCategory() != null) {
+            categoryName = transaction.getCategory().getName();
+        } else {
+            categoryName = "-";
+        }
+
         return TransactionDetailResponseDto.builder()
                 .id(transaction.getId())
                 .date(transaction.getDate())
-                .categoryName(transaction.getCategory().getName())
+                .categoryName(categoryName)
                 .type(transaction.getType())
                 .expenseType(transaction.getExpenseType())
                 .amount(transaction.getAmount())
@@ -43,6 +55,7 @@ public class TransactionDetailResponseDto {
                 .recurring(transaction.getRecurringTransaction() != null)
                 .bankAccountId(transaction.getBankAccount() != null ? transaction.getBankAccount().getId() : null)
                 .bankAccountName(transaction.getBankAccount() != null ? transaction.getBankAccount().getBankName() + " - " + transaction.getBankAccount().getAccountName() : null)
+                .transfer(transaction.isTransfer())
                 .build();
     }
 }

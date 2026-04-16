@@ -149,7 +149,6 @@ public class TransactionService {
             applyBalance(newBankAccount, requestDto.getType(), requestDto.getAmount());
         }
 
-
         transaction.update(
                 requestDto.getType(),
                 expenseType,
@@ -170,11 +169,32 @@ public class TransactionService {
     public void deleteTransaction(Long transactionId, Long userId) {
         Transaction transaction = getOwnedTransaction(transactionId, userId);
 
-        if(transaction.getBankAccount() != null) {
-            rollbackBalance(transaction.getBankAccount(), transaction.getType(), transaction.getAmount());
+        if(!transaction.isTransfer()) {
+            if (transaction.getBankAccount() != null) {
+                rollbackBalance(transaction.getBankAccount(), transaction.getType(), transaction.getAmount());
+            }
+            transactionRepository.delete(transaction);
+            return;
         }
 
-        transactionRepository.delete(transaction);
+        if(transaction.getTransferGroupKey() == null || transaction.getTransferGroupKey().isBlank()) {
+            throw new CustomException(ErrorCode.TRANSACTION_NOT_FOUND);
+        }
+
+        List<Transaction> transferTransactions =
+                transactionRepository.findAllByTransferGroupKeyAndUserId(transaction.getTransferGroupKey(), userId);
+
+        for(Transaction transferTransaction : transferTransactions) {
+            if(transferTransaction.getBankAccount() != null) {
+                rollbackBalance(
+                        transferTransaction.getBankAccount(),
+                        transferTransaction.getType(),
+                        transferTransaction.getAmount()
+                );
+            }
+        }
+
+        transactionRepository.deleteAll(transferTransactions);
     }
 
     @Transactional(readOnly = true)

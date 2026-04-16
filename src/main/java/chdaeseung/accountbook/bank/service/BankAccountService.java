@@ -10,6 +10,7 @@ import chdaeseung.accountbook.transaction.repository.TransactionRepository;
 import chdaeseung.accountbook.user.entity.User;
 import chdaeseung.accountbook.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -248,6 +249,17 @@ public class BankAccountService {
     public List<BankAccountSelectDto> getBankAccountsForSelect(Long userId) {
         return bankAccountRepository.findAllByUserId(userId).stream()
                 .map(BankAccountSelectDto::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BankAccountSelectDto> getTransferTargetOptions(Long userId, Long id) {
+        return bankAccountRepository.findAllByUserId(userId).stream()
+                .filter(account -> !account.getId().equals(id))
+                .map(account -> new BankAccountSelectDto(
+                        account.getId(),
+                        account.getAccountName()
+                ))
                 .toList();
     }
 }

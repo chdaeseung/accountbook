@@ -27,6 +27,8 @@ public class TransactionSearchDto {
 
     private String memoKeyword;
 
+    private boolean recurring;
+
     private int page = 0;
 
     private int size = 10;

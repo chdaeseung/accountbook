@@ -24,4 +24,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     List<Transaction> findAllByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 
     List<Transaction> findTop5ByUserIdAndDateBetweenOrderByDateDescIdDesc(Long userId, LocalDate startDate, LocalDate endDate);
+
+    List<Transaction> findAllByTransferGroupKeyAndUserId(String transferGroupKey, Long userId);
 }

@@ -84,6 +84,10 @@ public class DashboardService {
         long totalExpense = 0L;
 
         for(Transaction transaction : monthlyTransactions) {
+            if(transaction.isTransfer()) {
+                continue;
+            }
+
             if (transaction.getType() == TransactionType.INCOME) {
                 totalIncome += transaction.getAmount();
             } else if (transaction.getType() == TransactionType.EXPENSE) {

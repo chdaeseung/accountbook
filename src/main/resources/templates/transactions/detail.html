@@ -78,7 +78,9 @@
 
             <div class="detail-actions">
                 <a th:href="@{/transactions}" class="secondary-btn">목록으로</a>
-                <a th:href="@{/transactions/{id}/update(id=${transaction.id})}" class="primary-btn">수정</a>
+                <a th:if="${!transaction.transfer}"
+                   th:href="@{/transactions/{id}/update(id=${transaction.id})}"
+                   class="primary-btn">수정</a>
                 <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}"
                       method="post"
                       onsubmit="return confirm('정말 삭제하시겠습니까?');">

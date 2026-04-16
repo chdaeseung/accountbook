@@ -1,10 +1,12 @@
 package chdaeseung.accountbook.bank.controller;
 
 import chdaeseung.accountbook.bank.dto.AssetDashboardResponseDto;
+import chdaeseung.accountbook.bank.dto.BankAccountDetailResponseDto;
 import chdaeseung.accountbook.bank.dto.BankAccountRequestDto;
 import chdaeseung.accountbook.bank.dto.BankAccountResponseDto;
 import chdaeseung.accountbook.bank.entity.BankAccountType;
 import chdaeseung.accountbook.bank.service.BankAccountService;
+import chdaeseung.accountbook.transfer.dto.TransferRequestDto;
 import chdaeseung.accountbook.user.dto.LoginUserDto;
 import chdaeseung.accountbook.user.service.CustomUserDetails;
 import chdaeseung.accountbook.user.service.UserService;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -71,7 +75,16 @@ public class BankAccountController {
     public String detail(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Long userId = userDetails.getUserId();
 
-        model.addAttribute("bankAccount", bankAccountService.getDetail(userId, id));
+        BankAccountDetailResponseDto bankAccount = bankAccountService.getDetail(userId, id);
+
+        TransferRequestDto transferRequestDto = new TransferRequestDto();
+        transferRequestDto.setFromAccountId(id);
+        transferRequestDto.setDate(LocalDate.now());
+
+        model.addAttribute("bankAccount", bankAccount);
+        model.addAttribute("transferRequestDto", transferRequestDto);
+        model.addAttribute("transferAccounts", bankAccountService.getTransferTargetOptions(userId, id));
+
         return "/bank-account/detail";
     }
 

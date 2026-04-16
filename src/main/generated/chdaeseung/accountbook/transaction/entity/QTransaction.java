@@ -38,6 +38,10 @@ public class QTransaction extends EntityPathBase<Transaction> {
 
     public final chdaeseung.accountbook.recurring.entity.QRecurringTransaction recurringTransaction;
 
+    public final BooleanPath transfer = createBoolean("transfer");
+
+    public final StringPath transferGroupKey = createString("transferGroupKey");
+
     public final EnumPath<TransactionType> type = createEnum("type", TransactionType.class);
 
     public final chdaeseung.accountbook.user.entity.QUser user;

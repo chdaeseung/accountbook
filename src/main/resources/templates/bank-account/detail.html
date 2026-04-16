@@ -23,6 +23,7 @@
 
                     <div class="detail-header-actions">
                         <a th:href="@{/bank-account}" class="btn btn-secondary">목록</a>
+                        <button type="button" class="btn btn-transfer" onclick="openTransferModal()">이체하기</button>
                         <a th:href="@{/bank-account/{id}/update(id=${bankAccount.id})}" class="btn btn-primary">수정</a>
                     </div>
                 </div>
@@ -103,6 +104,63 @@
                     </form>
                 </div>
 
+                <div id="transferModal" class="transfer-modal-overlay">
+                    <div class="transfer-modal">
+                        <div class="transfer-modal-header">
+                            <h3>계좌 이체</h3>
+                            <button type="button" class="modal-close-btn" onclick="closeTransferModal()">×</button>
+                        </div>
+
+                        <form th:action="@{/transfers/create}"
+                              th:object="${transferRequestDto}"
+                              method="post"
+                              class="transfer-form">
+
+                            <input type="hidden" th:field="*{fromAccountId}">
+                            <input type="hidden" th:field="*{date}" th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+
+                            <div class="form-group">
+                                <label>출금 계좌</label>
+                                <input type="text"
+                                       th:value="${bankAccount.accountName}"
+                                       disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="toAccountId">입금 계좌</label>
+                                <select id="toAccountId" th:field="*{toAccountId}">
+                                    <option value="">선택해주세요</option>
+                                    <option th:each="account : ${transferAccounts}"
+                                            th:value="${account.id}"
+                                            th:text="${account.accountName}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="amount">금액</label>
+                                <input type="number"
+                                       id="amount"
+                                       th:field="*{amount}"
+                                       placeholder="이체 금액을 입력해주세요">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="memo">메모</label>
+                                <input type="text"
+                                       id="memo"
+                                       th:field="*{memo}"
+                                       placeholder="선택 입력">
+                            </div>
+
+                            <div class="transfer-form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeTransferModal()">취소</button>
+                                <button type="submit" class="btn btn-primary">이체</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -174,6 +232,21 @@
             }
         });
     }
+
+    function openTransferModal() {
+        document.getElementById('transferModal').classList.add('show');
+    }
+
+    function closeTransferModal() {
+        document.getElementById('transferModal').classList.remove('show');
+    }
+
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById('transferModal');
+        if (event.target === modal) {
+            closeTransferModal();
+        }
+    });
 </script>
 </body>
 </html>

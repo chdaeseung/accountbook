@@ -32,10 +32,20 @@ public class TransactionListResponseDto {
     private String bankAccountName;
 
     public static TransactionListResponseDto from(Transaction transaction) {
+        String categoryName;
+
+        if(transaction.isTransfer()) {
+            categoryName = "이체";
+        } else if(transaction.getCategory() != null) {
+            categoryName = transaction.getCategory().getName();
+        } else {
+            categoryName = "-";
+        }
+
         return TransactionListResponseDto.builder()
                 .id(transaction.getId())
                 .date(transaction.getDate())
-                .categoryName(transaction.getCategory().getName())
+                .categoryName(categoryName)
                 .type(transaction.getType())
                 .amount(transaction.getAmount())
                 .memo(transaction.getMemo())

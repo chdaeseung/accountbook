@@ -68,7 +68,7 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         List<Transaction> content = queryFactory
                 .selectFrom(transaction)
-                .join(transaction.category, category).fetchJoin()
+                .leftJoin(transaction.category, category).fetchJoin()
                 .where(
                         userIdEq(userId, transaction),
                         startDateGoe(searchDto.getStartDate(), transaction),
@@ -87,7 +87,7 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         Long total = queryFactory
                 .select(transaction.count())
                 .from(transaction)
-                .join(transaction.category, category)
+                .leftJoin(transaction.category, category)
                 .where(
                         userIdEq(userId, transaction),
                         startDateGoe(searchDto.getStartDate(), transaction),
@@ -95,7 +95,8 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         categoryIdEq(searchDto.getCategoryId(), category),
                         typeEq(searchDto.getType(), transaction),
                         expenseTypeEq(searchDto.getExpenseType(), transaction),
-                        eqBankAccountId(searchDto.getBankAccountId())
+                        eqBankAccountId(searchDto.getBankAccountId()),
+                        memoContains(searchDto.getMemoKeyword())
                 )
                 .fetchOne();
 

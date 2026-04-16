@@ -32,6 +32,10 @@ public class Transaction {
 
     private LocalDate date;
 
+    private boolean transfer;
+
+    private String transferGroupKey;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -49,7 +53,7 @@ public class Transaction {
     private BankAccount bankAccount;
 
     @Builder
-    public Transaction(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, User user, RecurringTransaction recurringTransaction, BankAccount bankAccount) {
+    public Transaction(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, User user, RecurringTransaction recurringTransaction, BankAccount bankAccount, boolean transfer, String transferGroupKey) {
         this.type = type;
         this.expenseType = expenseType;
         this.amount = amount;
@@ -59,6 +63,8 @@ public class Transaction {
         this.user = user;
         this.recurringTransaction = recurringTransaction;
         this.bankAccount = bankAccount;
+        this.transfer = transfer;
+        this.transferGroupKey = transferGroupKey;
     }
 
     public void update(TransactionType type, ExpenseType expenseType, Long amount, Category category, String memo, LocalDate date, BankAccount bankAccount) {

@@ -2,34 +2,30 @@ package chdaeseung.accountbook.transfer.service;
 
 import chdaeseung.accountbook.bank.entity.BankAccount;
 import chdaeseung.accountbook.bank.repository.BankAccountRepository;
-import chdaeseung.accountbook.category.entity.Category;
-import chdaeseung.accountbook.category.repository.CategoryRepository;
 import chdaeseung.accountbook.global.exception.CustomException;
 import chdaeseung.accountbook.global.exception.ErrorCode;
-import chdaeseung.accountbook.transaction.entity.ExpenseType;
 import chdaeseung.accountbook.transaction.entity.Transaction;
 import chdaeseung.accountbook.transaction.entity.TransactionType;
 import chdaeseung.accountbook.transaction.repository.TransactionRepository;
 import chdaeseung.accountbook.transfer.dto.TransferRequestDto;
-import chdaeseung.accountbook.transfer.entity.Transfer;
-import chdaeseung.accountbook.transfer.repository.TransferRepository;
 import chdaeseung.accountbook.user.entity.User;
 import chdaeseung.accountbook.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class TransferService {
 
-    private final TransferRepository transferRepository;
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final TransactionRepository transactionRepository;
 
     public void createTransfer(Long userId, TransferRequestDto requestDto) {
-        System.out.println(requestDto.getFromAccountId() + " >> " + requestDto.getToAccountId() + " amount = " + requestDto.getAmount());
         validateRequest(requestDto);
 
         User user = userRepository.findById(userId)
@@ -41,29 +37,60 @@ public class TransferService {
         BankAccount toAccount = bankAccountRepository.findByIdAndUserId(requestDto.getToAccountId(), userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        String memo = requestDto.getMemo() == null ? "" : requestDto.getMemo().trim();
-
         if(fromAccount.getId().equals(toAccount.getId())) {
             throw new CustomException(ErrorCode.SAME_ACCOUNT_ID);
         }
 
-        if(fromAccount.getBalance() < requestDto.getAmount()) {
-            throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE);
-        }
+        String memo = requestDto.getMemo() == null ? "" : requestDto.getMemo().trim();
+        String transferGroupKey = UUID.randomUUID().toString();
 
         fromAccount.decreaseBalance(requestDto.getAmount());
         toAccount.increaseBalance(requestDto.getAmount());
 
-        Transfer transfer = Transfer.builder()
+        Transaction withdrawTransaction = Transaction.builder()
+                .type(TransactionType.EXPENSE)
+                .expenseType(null)
                 .amount(requestDto.getAmount())
-                .memo(memo)
+                .category(null)
+                .memo(buildWithdrawMemo(toAccount.getAccountName(), memo))
                 .date(requestDto.getDate())
-                .fromAccount(fromAccount)
-                .toAccount(toAccount)
                 .user(user)
+                .recurringTransaction(null)
+                .bankAccount(fromAccount)
+                .transfer(true)
+                .transferGroupKey(transferGroupKey)
                 .build();
 
-        transferRepository.save(transfer);
+        Transaction depositTransaction = Transaction.builder()
+                .type(TransactionType.INCOME)
+                .expenseType(null)
+                .amount(requestDto.getAmount())
+                .category(null)
+                .memo(buildDepositMemo(fromAccount.getAccountName(), memo))
+                .date(requestDto.getDate())
+                .user(user)
+                .recurringTransaction(null)
+                .bankAccount(toAccount)
+                .transfer(true)
+                .transferGroupKey(transferGroupKey)
+                .build();
+
+        transactionRepository.save(withdrawTransaction);
+        transactionRepository.save(depositTransaction);
+    }
+
+    private String buildWithdrawMemo(String toAccountName, String memo) {
+        if(memo.isBlank()) {
+            return toAccountName + "로 이체";
+        }
+        return memo;
+    }
+
+    private String buildDepositMemo(String fromAccountName, String memo) {
+        if(memo.isBlank()) {
+            return fromAccountName + "에서 이체";
+        }
+        return memo;
     }
 
     private void validateRequest(TransferRequestDto requestDto) {
